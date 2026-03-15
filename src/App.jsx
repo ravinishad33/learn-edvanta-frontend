@@ -22,9 +22,9 @@ import CourseCatalog from "./pages/CourseCatalog";
 import CourseDetail from "./pages/CourseDetail";
 import LearningInterface from "./pages/LearningInterface";
 import Profile from "./pages/Profile";
+import MyCourses from './pages/myCourses'
 import CourseCreation from "./pages/CourseCreation";
 import PageNotFound from "./pages/PageNotFound";
-import MyCourses from "./pages/MyCourses";
 import CourseEdit from "./pages/CourseEdit";
 import ForgotPasswordEntry from "./components/Auth/ForgotPasswordEntry";
 import VerifyOTP from "./components/Auth/VerifyOTP";
@@ -72,7 +72,7 @@ function App() {
               path="/mycourses"
               element={
                 <ProtectedRoute allowedRoles={["student"]}>
-                  <MyCourses />
+                  <MyCourses/>
                 </ProtectedRoute>
               }
             />

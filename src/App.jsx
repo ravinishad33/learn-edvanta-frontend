@@ -22,7 +22,7 @@ import CourseCatalog from "./pages/CourseCatalog";
 import CourseDetail from "./pages/CourseDetail";
 import LearningInterface from "./pages/LearningInterface";
 import Profile from "./pages/Profile";
-import MyCourses from './pages/myCourses'
+import MyCourses from './pages/MyCourses'
 import CourseCreation from "./pages/CourseCreation";
 import PageNotFound from "./pages/PageNotFound";
 import CourseEdit from "./pages/CourseEdit";

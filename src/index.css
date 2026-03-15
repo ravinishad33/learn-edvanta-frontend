@@ -1,0 +1,312 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+}
+
+@layer components {
+  .glass-effect {
+    @apply backdrop-blur-md bg-white/10 border border-white/20;
+  }
+  
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-1;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg 
+           hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-0.5 
+           transition-all duration-300 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-blue-600 font-semibold py-3 px-6 rounded-lg border border-blue-200
+           hover:bg-gray-50 transform hover:-translate-y-0.5 
+           transition-all duration-300 shadow-lg hover:shadow-xl;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gradient-to-b from-blue-500 to-purple-500 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply from-blue-600 to-purple-600;
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Loading animation */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+
+
+
+
+/* Navbar */
+
+/* Smooth transitions */
+.navbar-transition {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Mobile menu slide-in animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-animation {
+  animation: slideDown 0.2s ease-out;
+}
+
+/* Smooth backdrop */
+.backdrop-blur {
+  backdrop-filter: blur(4px);
+}
+
+/* Better scrollbar for dropdowns */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 3px;
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+
+
+/* footer  */
+/* Footer specific animations */
+.footer-link-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.footer-link-hover::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  transition: width 0.3s ease;
+}
+
+.footer-link-hover:hover::after {
+  width: 100%;
+}
+
+/* Mobile accordion animation */
+.mobile-accordion {
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Gradient text animation */
+.gradient-text {
+  background-size: 200% auto;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Social icon hover effect */
+.social-icon {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.social-icon:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+}
+
+/* Scroll to top button animation */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+
+/* profile  */
+/* Role-based color variables */
+:root {
+  --student-primary: #3b82f6;
+  --student-secondary: #60a5fa;
+  --instructor-primary: #8b5cf6;
+  --instructor-secondary: #a78bfa;
+  --admin-primary: #ef4444;
+  --admin-secondary: #f87171;
+}
+
+/* Student theme */
+.student-bg {
+  background-color: var(--student-primary);
+}
+
+.student-text {
+  color: var(--student-primary);
+}
+
+.student-border {
+  border-color: var(--student-primary);
+}
+
+/* Instructor theme */
+.instructor-bg {
+  background-color: var(--instructor-primary);
+}
+
+.instructor-text {
+  color: var(--instructor-primary);
+}
+
+.instructor-border {
+  border-color: var(--instructor-primary);
+}
+
+/* Admin theme */
+.admin-bg {
+  background-color: var(--admin-primary);
+}
+
+.admin-text {
+  color: var(--admin-primary);
+}
+
+.admin-border {
+  border-color: var(--admin-primary);
+}
+
+/* Gradient backgrounds */
+.bg-gradient-student {
+  background: linear-gradient(135deg, var(--student-primary), var(--student-secondary));
+}
+
+.bg-gradient-instructor {
+  background: linear-gradient(135deg, var(--instructor-primary), var(--instructor-secondary));
+}
+
+.bg-gradient-admin {
+  background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+}
+
+/* Role-specific animations */
+@keyframes pulse-student {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+}
+
+@keyframes pulse-instructor {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+}
+
+@keyframes pulse-admin {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+}
+
+.pulse-student {
+  animation: pulse-student 2s infinite;
+}
+
+.pulse-instructor {
+  animation: pulse-instructor 2s infinite;
+}
+
+.pulse-admin {
+  animation: pulse-admin 2s infinite;
+}
+
+/* Tab transition animations */
+.tab-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-content-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.tab-content-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.tab-content-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tab-content-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}

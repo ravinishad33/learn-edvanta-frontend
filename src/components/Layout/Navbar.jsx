@@ -108,7 +108,7 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 sm:h-20">
             
-            {/* --- LEFT: Logo & Desktop Links --- */}
+            {/* Logo & Desktop Links */}
             <div className="flex items-center">
               <Link to="/" className="shrink-0 transition-transform active:scale-95">
                 <img src="/logo.png" alt="Edvanta" className="w-24 sm:w-32 h-auto object-contain" />
@@ -128,9 +128,7 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* --- RIGHT: Tools & Profile --- */}
             <div className="flex items-center space-x-2 sm:space-x-4">
-              
               {/* Desktop Search */}
               <form onSubmit={handleSearch} className="hidden md:block relative group">
                 <input
@@ -145,22 +143,50 @@ const Navbar = () => {
 
               {isLoggedIn ? (
                 <>
-                  {/* Notifications */}
+                  {/* --- RESPONSIVE NOTIFICATIONS --- */}
                   <div className="relative notifications-menu">
-                    <button onClick={() => { setNotificationsOpen(!notificationsOpen); setUserMenuOpen(false); }} className="relative p-2 text-gray-500 hover:text-[#7A589B] hover:bg-[#FAF7FF] rounded-xl">
+                    <button 
+                      onClick={() => { setNotificationsOpen(!notificationsOpen); setUserMenuOpen(false); }} 
+                      className={`relative p-2 rounded-xl transition-colors ${notificationsOpen ? 'bg-[#FAF7FF] text-[#7A589B]' : 'text-gray-500 hover:bg-[#FAF7FF]'}`}
+                    >
                       <FiBell className="w-6 h-6" />
                       {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>}
                     </button>
 
                     <AnimatePresence>
                       {notificationsOpen && (
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute right-0 mt-3 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-[#E6E6FA] overflow-hidden z-[1000]">
-                          <div className="px-5 py-3 bg-[#FAF7FF] border-b border-[#E6E6FA]/50 font-bold text-[#5E4B8A]">Notifications</div>
-                          <div className="max-h-64 overflow-y-auto">
-                            {notifications.length > 0 ? notifications.map((n) => (
-                              <div key={n.id} className="px-5 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 cursor-pointer text-sm font-medium text-gray-700">{n.text}</div>
-                            )) : <div className="py-8 text-center text-gray-400 text-sm">No new updates</div>}
+                        <motion.div 
+                          initial={{ opacity: 0, y: 15, scale: 0.95 }} 
+                          animate={{ opacity: 1, y: 0, scale: 1 }} 
+                          exit={{ opacity: 0, y: 15, scale: 0.95 }} 
+                          className="fixed inset-x-4 top-20 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-3 w-auto sm:w-80 bg-white rounded-2xl shadow-2xl border border-[#E6E6FA] overflow-hidden z-[1000] origin-top-right"
+                        >
+                          <div className="px-5 py-4 bg-[#FAF7FF] border-b border-[#E6E6FA]/50 flex justify-between items-center">
+                            <span className="font-bold text-[#5E4B8A]">Notifications</span>
+                            {unreadCount > 0 && <span className="text-[10px] bg-[#E6E6FA] text-[#7A589B] px-2 py-0.5 rounded-lg font-bold">NEW</span>}
                           </div>
+                          <div className="max-h-[60vh] sm:max-h-80 overflow-y-auto custom-scrollbar">
+                            {notifications.length > 0 ? notifications.map((n) => (
+                              <div key={n.id} className="px-5 py-4 hover:bg-gray-50 border-b border-gray-50 last:border-0 cursor-pointer group transition-colors">
+                                <p className="text-sm font-medium text-gray-700 leading-snug group-hover:text-[#5E4B8A]">{n.text}</p>
+                                <p className="text-[11px] text-gray-400 mt-1 font-semibold italic">{n.time || 'Just now'}</p>
+                              </div>
+                            )) : (
+                              <div className="py-12 text-center">
+                                <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                   <FiBell className="text-gray-300" />
+                                </div>
+                                <p className="text-gray-400 text-sm font-medium">No new updates</p>
+                              </div>
+                            )}
+                          </div>
+                          {/* Close button for mobile to improve UX */}
+                          <button 
+                            className="w-full py-3 bg-gray-50 text-xs font-bold text-gray-400 sm:hidden"
+                            onClick={() => setNotificationsOpen(false)}
+                          >
+                            Close
+                          </button>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -195,7 +221,7 @@ const Navbar = () => {
               ) : (
                 <div className="hidden sm:flex items-center space-x-2">
                   <Link to="/login" className="px-4 py-2 text-sm font-bold text-gray-500">Login</Link>
-                  <Link to="/register" className="px-5 py-2.5 rounded-xl text-sm font-black bg-[#967BB6] text-white shadow-lg shadow-[#B19CD9]/30">Join</Link>
+                  <Link to="/register" className="px-5 py-2.5 rounded-xl text-sm font-black bg-[#967BB6] text-white shadow-lg">Join</Link>
                 </div>
               )}
 
@@ -207,12 +233,11 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* --- MOBILE DRAWER --- */}
+        {/* MOBILE DRAWER */}
         <AnimatePresence>
           {isOpen && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="lg:hidden bg-white border-b border-[#E6E6FA] overflow-hidden shadow-2xl">
               <div className="px-4 py-6 space-y-2">
-                {/* Mobile Search */}
                 <form onSubmit={handleSearch} className="relative mb-6 md:hidden">
                   <input
                     type="text"
@@ -229,7 +254,7 @@ const Navbar = () => {
                     key={link.path}
                     to={link.path}
                     onClick={() => setIsOpen(false)}
-                    className={`flex items-center px-4 py-4 rounded-2xl text-sm font-bold transition-all ${location.pathname === link.path ? "bg-[#FAF7FF] text-[#7A589B]" : "text-gray-500"} ${link.highlight ? "bg-gradient-to-r from-[#B19CD9] to-[#967BB6] text-white mt-4 shadow-lg" : ""}`}
+                    className={`flex items-center px-4 py-4 rounded-2xl text-sm font-bold transition-all ${location.pathname === link.path ? "bg-[#FAF7FF] text-[#7A589B]" : "text-gray-500"}`}
                   >
                     <span className="mr-4 text-xl">{link.icon}</span>
                     {link.label}

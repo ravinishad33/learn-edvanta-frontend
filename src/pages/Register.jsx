@@ -1,6 +1,5 @@
-// pages/Register.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
@@ -15,15 +14,13 @@ import {
   XCircleIcon,
   KeyIcon,
 } from "@heroicons/react/24/outline";
+import { Loader2 } from "lucide-react";
 import axios from "axios";
 import GithubLoginButton from "../components/Auth/GithubLoginButton ";
 import GoogleLoginButton from "../components/Auth/GoogleLoginButton ";
 import toast from "react-hot-toast";
 
-
-
-  const apiUrl = import.meta.env.VITE_API_URL;
-
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const Register = ({ setUser }) => {
   const navigate = useNavigate();
@@ -168,26 +165,22 @@ const Register = ({ setUser }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Name validation
     if (!formData.name.trim()) {
       newErrors.name = "Full name is required";
     } else if (formData.name.trim().length < 2) {
       newErrors.name = "Name must be at least 2 characters";
     }
 
-    // Email validation
     if (!formData.email.trim()) {
       newErrors.email = "Email address is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address";
     }
 
-    // Phone validation (optional)
     if (formData.phone && !/^\+?[\d\s-]{10,}$/.test(formData.phone)) {
       newErrors.phone = "Please enter a valid phone number";
     }
 
-    // Password validation
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else {
@@ -203,7 +196,6 @@ const Register = ({ setUser }) => {
         newErrors.password = "Please use a stronger password";
       }
 
-      // Check for common passwords
       const commonPasswords = [
         "password123",
         "12345678",
@@ -217,7 +209,6 @@ const Register = ({ setUser }) => {
       }
     }
 
-    // Confirm password validation
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
     }
@@ -226,7 +217,6 @@ const Register = ({ setUser }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -234,7 +224,6 @@ const Register = ({ setUser }) => {
       [name]: value,
     }));
 
-    // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -243,7 +232,6 @@ const Register = ({ setUser }) => {
     }
   };
 
-  // Handle field blur (mark as touched)
   const handleBlur = (field) => {
     setTouched((prev) => ({
       ...prev,
@@ -251,31 +239,24 @@ const Register = ({ setUser }) => {
     }));
   };
 
-  // Handle OTP input change
   const handleOtpChange = (index, value) => {
-    if (value.length > 1) return; // Only allow single digit
+    if (value.length > 1) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto-focus next input
     if (value && index < 5) {
       otpRefs[index + 1].current.focus();
     }
   };
 
   const handleOtpKeyDown = (index, e) => {
-    // Handle backspace
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       otpRefs[index - 1].current.focus();
     }
   };
 
-
-
-
-  // Send OTP to email
   const handleSendOtp = async () => {
     if (!formData.email || !formData.email.includes("@")) {
       setErrors((prev) => ({
@@ -294,7 +275,6 @@ const Register = ({ setUser }) => {
         { email: formData.email }
       );
 
-      // setTempUserId(response.data.tempUserId);
       setOtpSent(true);
       setOtpTimer(60);
       setCanResend(false);
@@ -310,9 +290,6 @@ const Register = ({ setUser }) => {
     }
   };
 
-
-
-  // Verify OTP
   const handleVerifyOtp = async () => {
     const otpString = otp.join("");
     if (otpString.length !== 6) {
@@ -341,7 +318,6 @@ const Register = ({ setUser }) => {
         error.response?.data?.message || "Invalid or expired code",
         { id: toastId }
       );
-      // Clear OTP inputs
       setOtp(["", "", "", "", "", ""]);
       otpRefs[0].current.focus();
     } finally {
@@ -349,7 +325,6 @@ const Register = ({ setUser }) => {
     }
   };
 
-  // Resend OTP
   const handleResendOtp = async () => {
     setOtpLoading(true);
     const toastId = toast.loading("Resending verification code...");
@@ -372,7 +347,6 @@ const Register = ({ setUser }) => {
     }
   };
 
-  // Handle social login
   const handleGithubLogin = () => {
     const toastId = toast.loading("Redirecting to GitHub...");
     try {
@@ -411,7 +385,6 @@ const Register = ({ setUser }) => {
       return;
     }
 
-    // Mark all fields as touched for validation
     const allFields = ["name", "email", "password", "confirmPassword", "role"];
     const touchedFields = {};
     allFields.forEach((field) => {
@@ -419,7 +392,6 @@ const Register = ({ setUser }) => {
     });
     setTouched(touchedFields);
 
-    // Validate form
     if (!validateForm()) {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
@@ -427,7 +399,6 @@ const Register = ({ setUser }) => {
 
     setIsLoading(true);
 
-    // Remove confirmPassword before sending to API
     const { confirmPassword, ...dataToSend } = formData;
     const toastId = toast.loading("Registering user...");
     
@@ -467,12 +438,9 @@ const Register = ({ setUser }) => {
         } else if (error.response.status === 409) {
           setErrors((prev) => ({
             ...prev,
-            email:
-              "Email already registered. Please use a different email or login.",
+            email: "Email already registered. Please use a different email or login.",
           }));
-          toast.error(
-            "Email already registered. Please use a different email or login."
-          );
+          toast.error("Email already registered. Please use a different email or login.");
         } else {
           toast.error("Server error. Please try again later.");
         }
@@ -487,51 +455,55 @@ const Register = ({ setUser }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-[#FAF7FF] via-white to-[#E6E6FA] py-10 px-4 sm:px-6 lg:px-8 font-sans">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="max-w-md w-full space-y-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="max-w-lg w-full space-y-8"
       >
         <div className="text-center">
           <motion.div
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-6"
+            className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full mb-4 sm:mb-6 shadow-lg shadow-[#B19CD9]/30 overflow-hidden"
           >
-            <AcademicCapIcon className="h-10 w-10 text-white" />
+            <img src="Icon.png" alt="Logo" className="w-full h-full object-cover" />
           </motion.div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">
             Create Your Account
           </h2>
-          <p className="text-gray-600">Join thousands of learners worldwide</p>
+          <p className="text-sm sm:text-base text-gray-500 font-medium px-4">
+            Join thousands of learners worldwide
+          </p>
         </div>
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white p-8 rounded-2xl shadow-xl"
+          transition={{ delay: 0.3 }}
+          className="bg-white/90 backdrop-blur-xl p-5 sm:p-8 md:p-10 rounded-[2rem] shadow-xl shadow-[#E6E6FA]/60 border border-white"
         >
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+            
             {/* Role Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-3">
                 I want to join as:
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {["student", "instructor", "admin"].map((role) => (
                   <button
                     key={role}
                     type="button"
                     onClick={() => setFormData({ ...formData, role })}
-                    className={`p-3 rounded-lg border-2 transition-all ${
+                    className={`relative p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-200 ease-out text-xs sm:text-sm font-bold ${
                       formData.role === role
-                        ? "border-blue-500 bg-blue-50 text-blue-700"
-                        : "border-gray-200 hover:border-gray-300 text-gray-700"
+                        ? "border-[#B19CD9] bg-[#FAF7FF] text-[#5E4B8A] shadow-sm transform scale-[1.02]"
+                        : "border-gray-100 hover:border-[#D8BFD8] hover:bg-gray-50 text-gray-500"
                     }`}
                   >
-                    <div className="capitalize font-medium">{role}</div>
+                    <span className="capitalize block text-center w-full">{role}</span>
                   </button>
                 ))}
               </div>
@@ -539,11 +511,11 @@ const Register = ({ setUser }) => {
 
             {/* Name Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2">
                 Full Name *
               </label>
-              <div className="relative">
-                <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <div className="relative group">
+                <UserIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#967BB6] transition-colors" />
                 <input
                   type="text"
                   name="name"
@@ -551,27 +523,25 @@ const Register = ({ setUser }) => {
                   value={formData.name}
                   onChange={handleChange}
                   onBlur={() => handleBlur("name")}
-                  className={`pl-10 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    touched.name && errors.name
-                      ? "border-red-500"
-                      : "border-gray-300"
+                  className={`pl-11 w-full px-4 py-3 sm:py-3.5 bg-gray-50/50 border rounded-xl focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9] transition-all outline-none text-sm sm:text-base ${
+                    touched.name && errors.name ? "border-red-400" : "border-gray-200"
                   }`}
-                  placeholder="John Doe"
+                  placeholder="Full Name"
                   disabled={otpVerified}
                 />
               </div>
               {touched.name && errors.name && (
-                <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.name}</p>
               )}
             </div>
 
             {/* Email Field with OTP */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2">
                 Email Address *
               </label>
-              <div className="relative">
-                <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <div className="relative group">
+                <EnvelopeIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#967BB6] transition-colors" />
                 <input
                   type="email"
                   name="email"
@@ -579,14 +549,14 @@ const Register = ({ setUser }) => {
                   value={formData.email}
                   onChange={handleChange}
                   onBlur={() => handleBlur("email")}
-                  className={`pl-10 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`pl-11 w-full px-4 py-3 sm:py-3.5 bg-gray-50/50 border rounded-xl outline-none transition-all text-sm sm:text-base ${
                     touched.email && errors.email
-                      ? "border-red-500"
+                      ? "border-red-400 focus:ring-4 focus:ring-red-500/10 focus:border-red-400"
                       : otpVerified
-                      ? "border-green-500 bg-green-50"
-                      : "border-gray-300"
+                      ? "border-green-400 bg-green-50/60 text-green-800"
+                      : "border-gray-200 focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9]"
                   }`}
-                  placeholder="you@example.com"
+                  placeholder="Email Address"
                   disabled={otpVerified}
                 />
                 {!otpVerified && !otpSent && (
@@ -594,110 +564,111 @@ const Register = ({ setUser }) => {
                     type="button"
                     onClick={handleSendOtp}
                     disabled={otpLoading || !formData.email}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-lg hover:bg-[#967BB6] disabled:opacity-50 transition-colors"
                   >
                     {otpLoading ? "Sending..." : "Verify"}
                   </button>
                 )}
                 {otpVerified && (
-                  <CheckCircleIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-green-500" />
+                  <CheckCircleIcon className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-green-500" />
                 )}
               </div>
               {touched.email && errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.email}</p>
               )}
             </div>
 
             {/* OTP Verification Section */}
-            {otpSent && !otpVerified && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200"
-              >
-                <div>
-                  <label className="block text-sm font-medium text-blue-700 mb-3">
-                    Enter 6-digit verification code sent to {formData.email}
-                  </label>
-                  <div className="flex justify-between gap-2">
-                    {otp.map((digit, index) => (
-                      <input
-                        key={index}
-                        ref={otpRefs[index]}
-                        type="text"
-                        maxLength="1"
-                        value={digit}
-                        onChange={(e) => handleOtpChange(index, e.target.value)}
-                        onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                        className="w-12 h-12 text-center text-xl font-bold border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                        disabled={otpLoading}
-                      />
-                    ))}
+            <AnimatePresence>
+              {otpSent && !otpVerified && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, y: -10 }}
+                  animate={{ opacity: 1, height: "auto", y: 0 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="p-4 sm:p-5 bg-[#FAF7FF] rounded-2xl border border-[#E6E6FA] space-y-4"
+                >
+                  <div>
+                    <label className="block text-xs sm:text-sm font-bold text-[#5E4B8A] mb-3 text-center sm:text-left">
+                      Enter the 6-digit code sent to your email
+                    </label>
+                    <div className="flex justify-between gap-1 sm:gap-2">
+                      {otp.map((digit, index) => (
+                        <input
+                          key={index}
+                          ref={otpRefs[index]}
+                          type="text"
+                          maxLength="1"
+                          value={digit}
+                          onChange={(e) => handleOtpChange(index, e.target.value)}
+                          onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                          className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-black text-[#5E4B8A] bg-white border-2 border-[#E6E6FA] rounded-xl focus:border-[#B19CD9] focus:ring-4 focus:ring-[#E6E6FA]/50 transition-all outline-none disabled:opacity-50 shadow-sm"
+                          disabled={otpLoading}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex justify-between items-center">
-                  <button
-                    type="button"
-                    onClick={handleVerifyOtp}
-                    disabled={otpLoading || otp.join("").length !== 6}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {otpLoading ? "Verifying..." : "Verify Code"}
-                  </button>
-                  
-                  <div className="text-sm">
-                    {canResend ? (
-                      <button
-                        type="button"
-                        onClick={handleResendOtp}
-                        className="text-blue-600 hover:text-blue-800 font-medium"
-                      >
-                        Resend Code
-                      </button>
-                    ) : (
-                      <span className="text-gray-500">
-                        Resend in {otpTimer}s
-                      </span>
-                    )}
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={handleVerifyOtp}
+                      disabled={otpLoading || otp.join("").length !== 6}
+                      className="w-full sm:w-auto px-6 py-2.5 bg-[#967BB6] text-white text-sm font-bold rounded-xl hover:bg-[#7A589B] disabled:opacity-50 transition-colors shadow-md shadow-[#B19CD9]/30"
+                    >
+                      {otpLoading ? "Verifying..." : "Verify Code"}
+                    </button>
+                    
+                    <div className="text-xs sm:text-sm font-semibold">
+                      {canResend ? (
+                        <button
+                          type="button"
+                          onClick={handleResendOtp}
+                          className="text-[#7A589B] hover:text-[#5E4B8A] transition-colors"
+                        >
+                          Resend Code
+                        </button>
+                      ) : (
+                        <span className="text-gray-500">
+                          Resend in <span className="text-[#967BB6]">{otpTimer}s</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Phone Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number (Optional)
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Phone Number <span className="text-gray-400 font-medium">(Optional)</span>
               </label>
-              <div className="relative">
-                <PhoneIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <div className="relative group">
+                <PhoneIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#967BB6] transition-colors" />
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
                   onBlur={() => handleBlur("phone")}
-                  className={`pl-10 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    touched.phone && errors.phone
-                      ? "border-red-500"
-                      : "border-gray-300"
+                  className={`pl-11 w-full px-4 py-3 sm:py-3.5 bg-gray-50/50 border rounded-xl outline-none transition-all focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9] text-sm sm:text-base ${
+                    touched.phone && errors.phone ? "border-red-400" : "border-gray-200"
                   }`}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder="+91 9678541254"
                 />
               </div>
               {touched.phone && errors.phone && (
-                <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.phone}</p>
               )}
             </div>
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2">
                 Password *
               </label>
-              <div className="relative">
-                <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <div className="relative group">
+                <LockClosedIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#967BB6] transition-colors" />
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
@@ -705,17 +676,15 @@ const Register = ({ setUser }) => {
                   value={formData.password}
                   onChange={handleChange}
                   onBlur={() => handleBlur("password")}
-                  className={`pl-10 pr-10 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    touched.password && errors.password
-                      ? "border-red-500"
-                      : "border-gray-300"
+                  className={`pl-11 pr-12 w-full px-4 py-3 sm:py-3.5 bg-gray-50/50 border rounded-xl outline-none transition-all focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9] text-sm sm:text-base ${
+                    touched.password && errors.password ? "border-red-400" : "border-gray-200"
                   }`}
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1.5 rounded-lg hover:bg-[#FAF7FF] transition-colors"
                 >
                   {showPassword ? (
                     <EyeSlashIcon className="h-5 w-5 text-gray-400" />
@@ -725,63 +694,64 @@ const Register = ({ setUser }) => {
                 </button>
               </div>
               {touched.password && errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.password}</p>
               )}
             </div>
 
             {/* Password Strength Indicator */}
-            {formData.password && (
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-gray-700">
-                    Password Strength
-                  </span>
-                  <span
-                    className={`text-sm font-semibold ${passwordStrength.color}`}
-                  >
-                    {passwordStrength.message}
-                  </span>
-                </div>
+            <AnimatePresence>
+              {formData.password && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-3 overflow-hidden"
+                >
+                  <div className="flex justify-between items-center px-1 mt-1">
+                    <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      Password Strength
+                    </span>
+                    <span className={`text-[10px] sm:text-xs font-extrabold uppercase tracking-wide ${passwordStrength.color}`}>
+                      {passwordStrength.message}
+                    </span>
+                  </div>
 
-                {/* Strength Bar */}
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-300 ${passwordStrength.progressColor}`}
-                    style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
-                  />
-                </div>
+                  <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden flex">
+                    <div
+                      className={`h-full transition-all duration-500 ease-out rounded-full ${passwordStrength.progressColor}`}
+                      style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                    />
+                  </div>
 
-                {/* Requirements */}
-                <div className="grid grid-cols-1 gap-2">
-                  {requirements.map((req) => (
-                    <div key={req.id} className="flex items-center gap-2">
-                      {passwordStrength.requirements[req.id] ? (
-                        <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircleIcon className="h-4 w-4 text-gray-300" />
-                      )}
-                      <span
-                        className={`text-sm ${
-                          passwordStrength.requirements[req.id]
-                            ? "text-green-600"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {req.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    {requirements.map((req) => (
+                      <div key={req.id} className="flex items-center gap-2">
+                        {passwordStrength.requirements[req.id] ? (
+                          <CheckCircleIcon className="h-4 w-4 text-green-500 shrink-0" />
+                        ) : (
+                          <div className="h-1.5 w-1.5 rounded-full bg-gray-300 ml-1 shrink-0" />
+                        )}
+                        <span
+                          className={`text-xs font-semibold ${
+                            passwordStrength.requirements[req.id] ? "text-gray-700" : "text-gray-400"
+                          }`}
+                        >
+                          {req.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2">
                 Confirm Password *
               </label>
-              <div className="relative">
-                <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <div className="relative group">
+                <LockClosedIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#967BB6] transition-colors" />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
@@ -789,17 +759,15 @@ const Register = ({ setUser }) => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   onBlur={() => handleBlur("confirmPassword")}
-                  className={`pl-10 pr-10 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    touched.confirmPassword && errors.confirmPassword
-                      ? "border-red-500"
-                      : "border-gray-300"
+                  className={`pl-11 pr-12 w-full px-4 py-3 sm:py-3.5 bg-gray-50/50 border rounded-xl outline-none transition-all focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9] text-sm sm:text-base ${
+                    touched.confirmPassword && errors.confirmPassword ? "border-red-400" : "border-gray-200"
                   }`}
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1.5 rounded-lg hover:bg-[#FAF7FF] transition-colors"
                 >
                   {showConfirmPassword ? (
                     <EyeSlashIcon className="h-5 w-5 text-gray-400" />
@@ -809,36 +777,30 @@ const Register = ({ setUser }) => {
                 </button>
               </div>
               {touched.confirmPassword && errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1.5 text-xs font-semibold text-red-500">
                   {errors.confirmPassword}
                 </p>
               )}
             </div>
 
             {/* Terms Checkbox */}
-            <div className="flex items-start">
+            <div className="flex items-start pt-2 px-1">
               <div className="flex items-center h-5">
                 <input
                   id="terms"
                   type="checkbox"
                   required
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 accent-[#967BB6] text-[#967BB6] focus:ring-[#B19CD9] border-gray-300 rounded cursor-pointer"
                 />
               </div>
-              <div className="ml-3 text-sm">
-                <label htmlFor="terms" className="text-gray-700">
+              <div className="ml-3 text-xs sm:text-sm">
+                <label htmlFor="terms" className="text-gray-600 font-semibold">
                   I agree to the{" "}
-                  <Link
-                    to="/terms"
-                    className="text-blue-600 hover:text-blue-800 font-medium"
-                  >
+                  <Link to="/terms" className="text-[#7A589B] hover:text-[#5E4B8A] transition-colors">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link
-                    to="/privacy"
-                    className="text-blue-600 hover:text-blue-800 font-medium"
-                  >
+                  <Link to="/privacy" className="text-[#7A589B] hover:text-[#5E4B8A] transition-colors">
                     Privacy Policy
                   </Link>
                 </label>
@@ -847,17 +809,17 @@ const Register = ({ setUser }) => {
 
             {/* Submit Button */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.01, translateY: -2 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading || !otpVerified}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              className="w-full bg-gradient-to-r from-[#B19CD9] to-[#967BB6] text-white py-3.5 px-4 rounded-xl font-extrabold text-sm sm:text-base shadow-lg shadow-[#B19CD9]/30 hover:shadow-[#967BB6]/40 hover:from-[#A685E2] hover:to-[#8A63A6] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all duration-300 flex justify-center items-center mt-2"
             >
               {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
                   Creating Account...
-                </div>
+                </>
               ) : (
                 "Create Account"
               )}
@@ -865,32 +827,36 @@ const Register = ({ setUser }) => {
           </form>
 
           {/* Social Login */}
-          <div className="mt-6">
+          <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
+                <div className="w-full border-t border-gray-200"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
+              <div className="relative flex justify-center text-xs sm:text-sm">
+                <span className="px-4 bg-white text-gray-400 font-bold uppercase tracking-wider text-[10px] sm:text-xs">
                   Or sign up with
                 </span>
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <GithubLoginButton onClick={handleGithubLogin} />
-              <GoogleLoginButton onClick={handleGoogleLogin} />
+            <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex-1">
+                <GithubLoginButton onClick={handleGithubLogin} className="w-full" />
+              </div>
+              <div className="flex-1">
+                <GoogleLoginButton onClick={handleGoogleLogin} className="w-full" />
+              </div>
             </div>
           </div>
 
           {/* Login Link */}
-          <p className="mt-8 text-center text-sm text-gray-600">
+          <p className="mt-8 text-center text-sm text-gray-500 font-semibold">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="font-semibold text-blue-600 hover:text-blue-800"
+              className="text-[#7A589B] hover:text-[#5E4B8A] transition-colors"
             >
-              Sign in
+              Sign in here
             </Link>
           </p>
         </motion.div>

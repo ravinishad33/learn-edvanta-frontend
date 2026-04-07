@@ -54,7 +54,7 @@ const LearningInterface = () => {
   const [postText, setPostText] = useState("");
   const [replyText, setReplyText] = useState("");
   const [activeReplyId, setActiveReplyId] = useState(null);
-  const [sortBy, setSortBy] = useState("Chronological");
+  const [sortBy, setSortBy] = useState("Ordered");
 
   // Edit & Auth State
   const [editingId, setEditingId] = useState(null);
@@ -94,7 +94,7 @@ const LearningInterface = () => {
   }, []);
 
   const completedLessons = new Set(
-    (enrollment?.completedLessons || []).map((id) => id?.toString())
+    (enrollment?.completedLessons || []).map((id) => id?.toString()),
   );
 
   const allLessons =
@@ -104,11 +104,11 @@ const LearningInterface = () => {
           ...lesson,
           sectionId: section._id,
           sectionTitle: section.title,
-        })) || []
+        })) || [],
     ) || [];
 
   const currentLessonIndex = allLessons.findIndex(
-    (lesson) => lesson._id === currentLesson?._id
+    (lesson) => lesson._id === currentLesson?._id,
   );
 
   const isCourseCompleted =
@@ -139,7 +139,7 @@ const LearningInterface = () => {
         const token = localStorage.getItem("token");
         const res = await axios.get(
           `${apiUrl}/api/student/courses/${courseId}/watch`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
 
         const courseData = res?.data?.course;
@@ -162,9 +162,9 @@ const LearningInterface = () => {
 
           let resumeLesson = firstLesson;
           let resumeSection = firstSection;
-          
+
           // ADDED: Flag to track when we find the first uncompleted lesson
-          let found = false; 
+          let found = false;
 
           for (const section of courseData.sections) {
             for (const lesson of section.lessons || []) {
@@ -270,12 +270,12 @@ const LearningInterface = () => {
             return {
               ...d,
               replies: d.replies.map((r) =>
-                r._id === id ? { ...r, upvoteCount } : r
+                r._id === id ? { ...r, upvoteCount } : r,
               ),
             };
           }
           return d;
-        })
+        }),
       );
     });
 
@@ -286,7 +286,7 @@ const LearningInterface = () => {
           .map((d) => ({
             ...d,
             replies: d.replies?.filter((r) => r._id !== id),
-          }))
+          })),
       );
     });
 
@@ -298,12 +298,12 @@ const LearningInterface = () => {
             return {
               ...d,
               replies: d.replies.map((r) =>
-                r._id === id ? { ...r, text, isEdited, editedAt } : r
+                r._id === id ? { ...r, text, isEdited, editedAt } : r,
               ),
             };
           }
           return d;
-        })
+        }),
       );
     });
 
@@ -317,7 +317,7 @@ const LearningInterface = () => {
       const res = await axios.post(
         `${apiUrl}/api/discussions/post`,
         { course: courseId, text: postText },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setDiscussions((prev) => {
@@ -339,7 +339,7 @@ const LearningInterface = () => {
       const res = await axios.post(
         `${apiUrl}/api/discussions/reply`,
         { course: courseId, parentId, text: replyText },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setDiscussions((prev) =>
@@ -349,7 +349,7 @@ const LearningInterface = () => {
             return { ...d, replies: [...(d.replies || []), res.data] };
           }
           return d;
-        })
+        }),
       );
 
       setReplyText("");
@@ -366,7 +366,7 @@ const LearningInterface = () => {
       const res = await axios.post(
         `${apiUrl}/api/discussions/upvote/${discussionId}`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setDiscussions((prev) =>
         prev.map((d) => {
@@ -375,10 +375,10 @@ const LearningInterface = () => {
           const updatedReplies = d.replies?.map((r) =>
             r._id === discussionId
               ? { ...r, upvoteCount: res.data.upvoteCount }
-              : r
+              : r,
           );
           return { ...d, replies: updatedReplies };
-        })
+        }),
       );
     } catch (error) {
       toast.error("Action failed");
@@ -402,7 +402,7 @@ const LearningInterface = () => {
           .map((d) => ({
             ...d,
             replies: d.replies?.filter((r) => r._id !== id),
-          }))
+          })),
       );
 
       toast.success("Message deleted", { id: toastId });
@@ -422,7 +422,7 @@ const LearningInterface = () => {
       const res = await axios.put(
         `${apiUrl}/api/discussions/${id}`,
         { text: editText },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setDiscussions((prev) =>
@@ -445,12 +445,12 @@ const LearningInterface = () => {
                       isEdited: true,
                       editedAt: res.data.editedAt,
                     }
-                  : r
+                  : r,
               ),
             };
           }
           return d;
-        })
+        }),
       );
 
       setEditingId(null);
@@ -459,7 +459,7 @@ const LearningInterface = () => {
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Failed to update message",
-        { id: toastId }
+        { id: toastId },
       );
     }
   };
@@ -467,7 +467,7 @@ const LearningInterface = () => {
   const sortedDiscussions = [...discussions].sort((a, b) => {
     if (sortBy === "Top Rated")
       return (b.upvoteCount || 0) - (a.upvoteCount || 0);
-    // Chronological sorting (oldest first, so newest pushes to the bottom)
+    // Ordered sorting (oldest first, so newest pushes to the bottom)
     return new Date(a.createdAt) - new Date(b.createdAt);
   });
 
@@ -476,7 +476,7 @@ const LearningInterface = () => {
       const token = localStorage.getItem("token");
       const res = await axios.get(
         `${apiUrl}/api/certificate/check/${courseId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       if (res.data?.exists && res.data?.fileUrl) {
@@ -491,7 +491,7 @@ const LearningInterface = () => {
     if (!course || !currentLesson) return;
 
     const section = course.sections?.find((s) =>
-      s.lessons?.some((l) => l._id === currentLesson._id)
+      s.lessons?.some((l) => l._id === currentLesson._id),
     );
     if (section) setCurrentSection(section);
   }, [currentLesson, course]);
@@ -520,7 +520,7 @@ const LearningInterface = () => {
       const res = await axios.patch(
         `${apiUrl}/api/enrollments/${courseId}/lessons/${currentLesson._id}`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setEnrollment(res?.data?.enrollment);
       toast.success("Lesson completed!");
@@ -555,7 +555,7 @@ const LearningInterface = () => {
       const res = await axios.patch(
         `${apiUrl}/api/enrollments/${courseId}/complete`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setEnrollment(res?.data?.enrollment);
@@ -567,7 +567,7 @@ const LearningInterface = () => {
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Failed to complete course",
-        { id: toastId }
+        { id: toastId },
       );
     }
   };
@@ -579,7 +579,7 @@ const LearningInterface = () => {
       const res = await axios.post(
         `${apiUrl}/api/certificate/generate`,
         { courseId },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       if (res.data?.success && res.data?.fileUrl) {
@@ -590,7 +590,7 @@ const LearningInterface = () => {
       }
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Failed to generate certificate"
+        error.response?.data?.message || "Failed to generate certificate",
       );
       console.error("Certificate error:", error);
     } finally {
@@ -608,7 +608,7 @@ const LearningInterface = () => {
       const token = localStorage.getItem("token");
       const res = await axios.get(
         `${apiUrl}/api/certificate/download/course/${courseId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       const link = document.createElement("a");
@@ -641,14 +641,14 @@ const LearningInterface = () => {
     }
 
     const toastId = toast.loading(
-      userReview ? "Updating review..." : "Submitting review..."
+      userReview ? "Updating review..." : "Submitting review...",
     );
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
         `${apiUrl}/api/course/${courseId}/review`,
         { rating, comment: reviewComment },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setUserReview(res.data.review);
@@ -662,14 +662,6 @@ const LearningInterface = () => {
       });
     }
   };
-
-
-
-
-
-
-
-  
 
   if (loading) {
     return (
@@ -785,9 +777,9 @@ const LearningInterface = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <div className={`lg:col-span-2 space-y-6 w-full max-w-full ${showSidebar ? "" : "lg:col-span-3"}`}>
-            
+          <div
+            className={`lg:col-span-2 space-y-6 w-full max-w-full ${showSidebar ? "" : "lg:col-span-3"}`}
+          >
             {/* Video Player */}
             <div className="bg-black rounded-xl sm:rounded-2xl overflow-hidden shadow-md border border-[#E6E6FA] aspect-video w-full">
               <video
@@ -831,7 +823,8 @@ const LearningInterface = () => {
                   Previous
                 </button>
                 <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                  {!completedLessons.has(currentLesson?._id?.toString()) && user?.role === "student" && (
+                  {!completedLessons.has(currentLesson?._id?.toString()) &&
+                    user?.role === "student" && (
                       <button
                         onClick={markLessonComplete}
                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl transition-colors font-bold text-sm"
@@ -859,7 +852,11 @@ const LearningInterface = () => {
                 {[
                   { id: "content", label: "Overview", icon: BookOpen },
                   { id: "resources", label: "Resources", icon: FileText },
-                  { id: "discussion", label: "Discussion", icon: MessageCircle },
+                  {
+                    id: "discussion",
+                    label: "Discussion",
+                    icon: MessageCircle,
+                  },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -891,9 +888,12 @@ const LearningInterface = () => {
               <div className="flex flex-col flex-1">
                 {activeTab === "content" && (
                   <div className="p-5 sm:p-6 space-y-4">
-                    <h3 className="font-bold text-slate-900">About this Course</h3>
+                    <h3 className="font-bold text-slate-900">
+                      About this Course
+                    </h3>
                     <p className="text-sm text-slate-600 leading-relaxed break-words">
-                      {course?.description || "No additional information available."}
+                      {course?.description ||
+                        "No additional information available."}
                     </p>
                     {isCourseCompleted && (
                       <div className="mt-8 p-5 bg-[#F4F0FA] rounded-xl border border-[#E6E6FA]">
@@ -954,7 +954,6 @@ const LearningInterface = () => {
 
                 {activeTab === "discussion" && (
                   <div className="flex flex-col h-[400px] sm:h-[500px] lg:h-[600px] animate-in fade-in duration-500 bg-white">
-                    
                     {/* Header (Sticky at top) */}
                     <div className="flex items-center justify-between px-5 py-4 border-b border-[#F4F0FA] shrink-0 z-10 bg-white">
                       <h3 className="font-bold text-slate-900 text-sm sm:text-base">
@@ -972,7 +971,7 @@ const LearningInterface = () => {
                           onChange={(e) => setSortBy(e.target.value)}
                           className="text-xs sm:text-sm bg-slate-50 p-1.5 rounded-lg font-bold text-slate-600 outline-none cursor-pointer hover:text-[#8B6ED7] transition-colors border border-transparent hover:border-slate-200"
                         >
-                          <option value="Chronological">Chronological</option>
+                          <option value="Ordered">Ordered</option>
                           <option value="Top Rated">Top Rated</option>
                         </select>
                       </div>
@@ -981,7 +980,10 @@ const LearningInterface = () => {
                     {/* Messages Scroll Area */}
                     <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 custom-scrollbar space-y-6">
                       {sortedDiscussions.map((discussion) => (
-                        <div key={discussion._id} className="group animate-in slide-in-from-bottom-2 duration-300">
+                        <div
+                          key={discussion._id}
+                          className="group animate-in slide-in-from-bottom-2 duration-300"
+                        >
                           <div className="flex gap-3 sm:gap-4">
                             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#E6E6FA] shrink-0 flex items-center justify-center text-[#8B6ED7] font-bold text-xs sm:text-sm uppercase overflow-hidden shadow-sm">
                               {discussion.user.avatar.url ? (
@@ -1018,7 +1020,9 @@ const LearningInterface = () => {
                                 <div className="mt-2 flex flex-col gap-2">
                                   <textarea
                                     value={editText}
-                                    onChange={(e) => setEditText(e.target.value)}
+                                    onChange={(e) =>
+                                      setEditText(e.target.value)
+                                    }
                                     className="w-full p-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#8B6ED7] outline-none resize-none bg-slate-50"
                                     rows={2}
                                   />
@@ -1030,7 +1034,9 @@ const LearningInterface = () => {
                                       Cancel
                                     </button>
                                     <button
-                                      onClick={() => handleEditSubmit(discussion._id)}
+                                      onClick={() =>
+                                        handleEditSubmit(discussion._id)
+                                      }
                                       disabled={!editText.trim()}
                                       className="px-3 py-1.5 text-xs font-bold text-white bg-[#8B6ED7] hover:bg-[#7354C4] rounded-lg transition-colors disabled:opacity-50"
                                     >
@@ -1047,7 +1053,11 @@ const LearningInterface = () => {
                               <div className="flex items-center gap-4 mt-2.5 flex-wrap">
                                 <button
                                   onClick={() =>
-                                    setActiveReplyId(activeReplyId === discussion._id ? null : discussion._id)
+                                    setActiveReplyId(
+                                      activeReplyId === discussion._id
+                                        ? null
+                                        : discussion._id,
+                                    )
                                   }
                                   className="text-[11px] font-bold text-slate-500 hover:text-[#8B6ED7] transition-colors flex items-center gap-1 uppercase tracking-wider"
                                 >
@@ -1055,21 +1065,36 @@ const LearningInterface = () => {
                                 </button>
 
                                 <button
-                                  onClick={() => handleToggleUpvote(discussion._id)}
+                                  onClick={() =>
+                                    handleToggleUpvote(discussion._id)
+                                  }
                                   className={`text-[11px] font-bold transition-colors flex items-center gap-1.5 group/btn ${
-                                    discussion.isUpvoted ? "text-[#8B6ED7]" : "text-slate-400 hover:text-[#8B6ED7]"
+                                    discussion.isUpvoted
+                                      ? "text-[#8B6ED7]"
+                                      : "text-slate-400 hover:text-[#8B6ED7]"
                                   }`}
                                 >
                                   <svg
                                     className={`w-4 h-4 transition-colors ${
-                                      discussion.isUpvoted ? "fill-[#8B6ED7]" : "group-hover/btn:fill-[#E6E6FA]"
+                                      discussion.isUpvoted
+                                        ? "fill-[#8B6ED7]"
+                                        : "group-hover/btn:fill-[#E6E6FA]"
                                     }`}
-                                    fill={discussion.isUpvoted ? "currentColor" : "none"}
+                                    fill={
+                                      discussion.isUpvoted
+                                        ? "currentColor"
+                                        : "none"
+                                    }
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
                                     xmlns="http://www.w3.org/2000/svg"
                                   >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"
+                                    />
                                   </svg>
                                   {discussion.upvoteCount || 0}
                                 </button>
@@ -1086,7 +1111,9 @@ const LearningInterface = () => {
                                       <Pencil className="w-3.5 h-3.5" />
                                     </button>
                                     <button
-                                      onClick={() => handleDeleteDiscussion(discussion._id)}
+                                      onClick={() =>
+                                        handleDeleteDiscussion(discussion._id)
+                                      }
                                       className="text-[11px] font-bold text-rose-400 hover:text-rose-600 transition-colors flex items-center gap-1"
                                     >
                                       <Trash2 className="w-3.5 h-3.5" />
@@ -1105,14 +1132,18 @@ const LearningInterface = () => {
                                   >
                                     <textarea
                                       value={replyText}
-                                      onChange={(e) => setReplyText(e.target.value)}
+                                      onChange={(e) =>
+                                        setReplyText(e.target.value)
+                                      }
                                       className="flex-1 p-2 text-xs sm:text-sm border border-slate-200 rounded-lg outline-none resize-none focus:ring-2 focus:ring-[#8B6ED7] bg-slate-50 w-full"
                                       placeholder="Write a reply..."
                                       rows={1}
                                     />
                                     <div className="flex justify-end shrink-0">
                                       <button
-                                        onClick={() => handleReplyDiscussion(discussion._id)}
+                                        onClick={() =>
+                                          handleReplyDiscussion(discussion._id)
+                                        }
                                         disabled={!replyText.trim()}
                                         className="px-4 py-1.5 bg-[#8B6ED7] text-white rounded-lg text-xs font-bold hover:bg-[#7354C4] disabled:opacity-50 transition-colors shadow-sm w-full sm:w-auto"
                                       >
@@ -1124,109 +1155,141 @@ const LearningInterface = () => {
                               </AnimatePresence>
 
                               {/* Replies map */}
-                              {discussion.replies && discussion.replies.map((reply) => (
-                                <div key={reply._id} className="mt-4 flex gap-2 sm:gap-3 bg-slate-50/80 p-3 sm:p-4 rounded-xl border border-slate-100 shadow-sm transition-colors hover:bg-slate-50">
-                                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#8B6ED7] shrink-0 flex items-center justify-center text-white text-[10px] font-bold overflow-hidden uppercase shadow-sm">
-                                    {reply.user.avatar.url ? (
-                                      <img src={reply.user.avatar.url} alt="" className="w-full h-full object-cover" />
-                                    ) : (
-                                      reply.user.name?.substring(0, 2) || "U"
-                                    )}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                                      <span className="font-bold text-slate-900 text-xs hover:text-[#8B6ED7] transition-colors cursor-pointer break-words">
-                                        {reply.user.name}
-                                      </span>
-                                      {reply.user.role === "instructor" && (
-                                        <span className="bg-[#E6E6FA] text-[#7354C4] text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                                          Instructor
-                                        </span>
-                                      )}
-                                      <span className="text-[10px] text-slate-400 font-medium">
-                                        {formatDate(reply.createdAt)}
-                                      </span>
-                                      {reply.isEdited && (
-                                        <span className="text-[10px] text-slate-400 italic">
-                                          (edited {formatDate(reply.editedAt)})
-                                        </span>
-                                      )}
-                                    </div>
-
-                                    {editingId === reply._id ? (
-                                      <div className="mt-2 flex flex-col gap-2">
-                                        <textarea
-                                          value={editText}
-                                          onChange={(e) => setEditText(e.target.value)}
-                                          className="w-full p-2 text-xs sm:text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#8B6ED7] outline-none resize-none bg-white"
-                                          rows={2}
+                              {discussion.replies &&
+                                discussion.replies.map((reply) => (
+                                  <div
+                                    key={reply._id}
+                                    className="mt-4 flex gap-2 sm:gap-3 bg-slate-50/80 p-3 sm:p-4 rounded-xl border border-slate-100 shadow-sm transition-colors hover:bg-slate-50"
+                                  >
+                                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#8B6ED7] shrink-0 flex items-center justify-center text-white text-[10px] font-bold overflow-hidden uppercase shadow-sm">
+                                      {reply.user.avatar.url ? (
+                                        <img
+                                          src={reply.user.avatar.url}
+                                          alt=""
+                                          className="w-full h-full object-cover"
                                         />
-                                        <div className="flex justify-end gap-2">
-                                          <button
-                                            onClick={() => setEditingId(null)}
-                                            className="px-2.5 py-1 text-xs font-bold text-slate-500 hover:bg-slate-200 rounded-lg transition-colors"
-                                          >
-                                            Cancel
-                                          </button>
-                                          <button
-                                            onClick={() => handleEditSubmit(reply._id)}
-                                            disabled={!editText.trim()}
-                                            className="px-2.5 py-1 text-xs font-bold text-white bg-[#8B6ED7] hover:bg-[#7354C4] rounded-lg transition-colors disabled:opacity-50"
-                                          >
-                                            Save
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed break-words">
-                                        {reply.text}
-                                      </p>
-                                    )}
-
-                                    <div className="flex items-center gap-4 mt-2 flex-wrap">
-                                      <button
-                                        onClick={() => handleToggleUpvote(reply._id)}
-                                        className={`text-[10px] font-bold transition-colors flex items-center gap-1.5 group/replybtn ${
-                                          reply.isUpvoted ? "text-[#8B6ED7]" : "text-slate-400 hover:text-[#8B6ED7]"
-                                        }`}
-                                      >
-                                        <svg
-                                          className={`w-3.5 h-3.5 transition-colors ${
-                                            reply.isUpvoted ? "fill-[#8B6ED7]" : "group-hover/replybtn:fill-[#E6E6FA]"
-                                          }`}
-                                          fill={reply.isUpvoted ? "currentColor" : "none"}
-                                          stroke="currentColor"
-                                          viewBox="0 0 24 24"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
-                                        </svg>
-                                        {reply.upvoteCount || 0}
-                                      </button>
-
-                                      {currentUserId === reply.user?._id && (
-                                        <div className="ml-auto flex items-center gap-3">
-                                          <button
-                                            onClick={() => {
-                                              setEditingId(reply._id);
-                                              setEditText(reply.text);
-                                            }}
-                                            className="text-[10px] font-bold text-slate-400 hover:text-[#8B6ED7] transition-colors flex items-center gap-1"
-                                          >
-                                            <Pencil className="w-3 h-3" />
-                                          </button>
-                                          <button
-                                            onClick={() => handleDeleteDiscussion(reply._id)}
-                                            className="text-[10px] font-bold text-rose-400 hover:text-rose-600 transition-colors flex items-center gap-1"
-                                          >
-                                            <Trash2 className="w-3 h-3" />
-                                          </button>
-                                        </div>
+                                      ) : (
+                                        reply.user.name?.substring(0, 2) || "U"
                                       )}
                                     </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                                        <span className="font-bold text-slate-900 text-xs hover:text-[#8B6ED7] transition-colors cursor-pointer break-words">
+                                          {reply.user.name}
+                                        </span>
+                                        {reply.user.role === "instructor" && (
+                                          <span className="bg-[#E6E6FA] text-[#7354C4] text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                            Instructor
+                                          </span>
+                                        )}
+                                        <span className="text-[10px] text-slate-400 font-medium">
+                                          {formatDate(reply.createdAt)}
+                                        </span>
+                                        {reply.isEdited && (
+                                          <span className="text-[10px] text-slate-400 italic">
+                                            (edited {formatDate(reply.editedAt)}
+                                            )
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      {editingId === reply._id ? (
+                                        <div className="mt-2 flex flex-col gap-2">
+                                          <textarea
+                                            value={editText}
+                                            onChange={(e) =>
+                                              setEditText(e.target.value)
+                                            }
+                                            className="w-full p-2 text-xs sm:text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#8B6ED7] outline-none resize-none bg-white"
+                                            rows={2}
+                                          />
+                                          <div className="flex justify-end gap-2">
+                                            <button
+                                              onClick={() => setEditingId(null)}
+                                              className="px-2.5 py-1 text-xs font-bold text-slate-500 hover:bg-slate-200 rounded-lg transition-colors"
+                                            >
+                                              Cancel
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                handleEditSubmit(reply._id)
+                                              }
+                                              disabled={!editText.trim()}
+                                              className="px-2.5 py-1 text-xs font-bold text-white bg-[#8B6ED7] hover:bg-[#7354C4] rounded-lg transition-colors disabled:opacity-50"
+                                            >
+                                              Save
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed break-words">
+                                          {reply.text}
+                                        </p>
+                                      )}
+
+                                      <div className="flex items-center gap-4 mt-2 flex-wrap">
+                                        <button
+                                          onClick={() =>
+                                            handleToggleUpvote(reply._id)
+                                          }
+                                          className={`text-[10px] font-bold transition-colors flex items-center gap-1.5 group/replybtn ${
+                                            reply.isUpvoted
+                                              ? "text-[#8B6ED7]"
+                                              : "text-slate-400 hover:text-[#8B6ED7]"
+                                          }`}
+                                        >
+                                          <svg
+                                            className={`w-3.5 h-3.5 transition-colors ${
+                                              reply.isUpvoted
+                                                ? "fill-[#8B6ED7]"
+                                                : "group-hover/replybtn:fill-[#E6E6FA]"
+                                            }`}
+                                            fill={
+                                              reply.isUpvoted
+                                                ? "currentColor"
+                                                : "none"
+                                            }
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth="2"
+                                              d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"
+                                            />
+                                          </svg>
+                                          {reply.upvoteCount || 0}
+                                        </button>
+
+                                        {currentUserId === reply.user?._id && (
+                                          <div className="ml-auto flex items-center gap-3">
+                                            <button
+                                              onClick={() => {
+                                                setEditingId(reply._id);
+                                                setEditText(reply.text);
+                                              }}
+                                              className="text-[10px] font-bold text-slate-400 hover:text-[#8B6ED7] transition-colors flex items-center gap-1"
+                                            >
+                                              <Pencil className="w-3 h-3" />
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                handleDeleteDiscussion(
+                                                  reply._id,
+                                                )
+                                              }
+                                              className="text-[10px] font-bold text-rose-400 hover:text-rose-600 transition-colors flex items-center gap-1"
+                                            >
+                                              <Trash2 className="w-3 h-3" />
+                                            </button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
                             </div>
                           </div>
                         </div>
@@ -1240,7 +1303,7 @@ const LearningInterface = () => {
                           </p>
                         </div>
                       )}
-                      
+
                       {/* Invisible div for auto-scrolling to bottom */}
                       <div ref={messagesEndRef} />
                     </div>
@@ -1248,9 +1311,18 @@ const LearningInterface = () => {
                     {/* New Post Input (Sticky at bottom) */}
                     <div className="shrink-0 p-4 border-t border-[#F4F0FA] bg-white z-10 w-full">
                       <div className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-slate-50 rounded-2xl border border-slate-100 shadow-sm flex-col sm:flex-row items-stretch sm:items-start w-full">
-                        <div className="hidden sm:flex w-10 h-10 rounded-full bg-gradient-to-br from-[#A388E8] to-[#B39DDB] shrink-0 items-center justify-center text-white text-xs sm:text-sm font-bold shadow-sm">
-                          YOU
-                        </div>
+                        {user?.avatar?.url ? (
+                          <img
+                            src={user.avatar.url}
+                            alt="Profile"
+                            className="hidden sm:flex w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-white shadow-sm"
+                          />
+                        ) : (
+                          <div className="hidden sm:flex w-10 h-10 rounded-full bg-gradient-to-br from-[#A388E8] to-[#B39DDB] shrink-0 items-center justify-center text-white text-xs font-black shadow-sm uppercase tracking-tighter">
+                            You
+                          </div>
+                        )}
+
                         <div className="flex-1 min-w-0 w-full">
                           <textarea
                             value={postText}
@@ -1271,7 +1343,6 @@ const LearningInterface = () => {
                         </div>
                       </div>
                     </div>
-
                   </div>
                 )}
               </div>
@@ -1301,14 +1372,19 @@ const LearningInterface = () => {
 
                   <div className="overflow-y-auto flex-1 p-3 custom-scrollbar w-full">
                     {course?.sections?.map((section, sectionIdx) => (
-                      <div key={section._id || sectionIdx} className="mb-5 w-full">
+                      <div
+                        key={section._id || sectionIdx}
+                        className="mb-5 w-full"
+                      >
                         <div className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 rounded-lg mb-2 break-words">
                           {section.title}
                         </div>
                         <div className="space-y-1.5 w-full">
                           {section.lessons?.map((lesson, lessonIdx) => {
                             const isActive = currentLesson?._id === lesson._id;
-                            const isCompleted = completedLessons.has(lesson._id?.toString());
+                            const isCompleted = completedLessons.has(
+                              lesson._id?.toString(),
+                            );
                             return (
                               <button
                                 key={lesson._id || lessonIdx}
@@ -1324,8 +1400,8 @@ const LearningInterface = () => {
                                     isCompleted
                                       ? "bg-emerald-500 text-white"
                                       : isActive
-                                      ? "bg-[#8B6ED7] text-white"
-                                      : "bg-slate-200 text-slate-500"
+                                        ? "bg-[#8B6ED7] text-white"
+                                        : "bg-slate-200 text-slate-500"
                                   }`}
                                 >
                                   {isCompleted ? (
@@ -1337,13 +1413,16 @@ const LearningInterface = () => {
                                 <div className="min-w-0 flex-1">
                                   <p
                                     className={`text-xs font-bold truncate ${
-                                      isActive ? "text-[#4A3089]" : "text-slate-700"
+                                      isActive
+                                        ? "text-[#4A3089]"
+                                        : "text-slate-700"
                                     }`}
                                   >
                                     {lesson.title}
                                   </p>
                                   <p className="text-[10px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
-                                    <Clock className="h-3 w-3" /> {lesson.duration}
+                                    <Clock className="h-3 w-3" />{" "}
+                                    {lesson.duration}
                                   </p>
                                 </div>
                               </button>

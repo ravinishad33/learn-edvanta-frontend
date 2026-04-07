@@ -23,6 +23,9 @@ import {
   UserPlusIcon,
   CircleStackIcon,
   CurrencyRupeeIcon,
+  CommandLineIcon,
+  CheckBadgeIcon,
+  NoSymbolIcon,
 } from "@heroicons/react/24/outline";
 import { Line, Bar, Pie } from "react-chartjs-2";
 import {
@@ -41,7 +44,7 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { ClockIcon, XCircleIcon } from "lucide-react";
+import { ClockIcon, StarIcon, UserIcon, XCircleIcon } from "lucide-react";
 
 ChartJS.register(
   CategoryScale,
@@ -1015,198 +1018,229 @@ const AdminDashboard = () => {
             </div>
           </motion.div>
         )}
+
+
 {activeTab === "users" && (
   <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6"
+    initial={{ opacity: 0, scale: 0.98 }}
+    animate={{ opacity: 1, scale: 1 }}
+    className="bg-white rounded-[2.5rem] shadow-2xl shadow-[#E6E6FA]/40 border border-slate-100 overflow-hidden"
   >
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-      <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-        User Management
-      </h2>
-    </div>
-
-    {/* Search and Filters */}
-    <div className="sticky top-0 bg-white z-20 pb-4">
-      <div className="flex flex-col lg:flex-row gap-4">
-        {/* Search Bar */}
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search users..."
-            className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
-          />
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm("")}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
-            >
-              <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-            </button>
-          )}
+    {/* --- HEADER & TOOLBAR --- */}
+    <div className="p-6 md:p-10 pb-0">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
+        <div>
+          <h2 className="text-3xl font-black text-[#1A1A2E] tracking-tight flex items-center gap-3">
+            Users
+            <span className="text-sm bg-[#FAF7FF] text-[#967BB6] px-3 py-1 rounded-full border border-[#E6E6FA]">
+              {filteredUsers.length} Total
+            </span>
+          </h2>
+          <p className="text-slate-500 font-medium mt-1">Manage permissions and monitor user activity</p>
         </div>
 
-        {/* Filters Group */}
-        <div className="flex flex-wrap sm:flex-nowrap gap-3 items-center">
-          <div className="relative flex-1 sm:flex-none">
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm appearance-none bg-white"
-            >
-              <option value="">All Roles</option>
-              <option value="student">Student</option>
-              <option value="instructor">Instructor</option>
-              <option value="admin">Admin</option>
-            </select>
+        <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-3">
+          {/* Enhanced Search */}
+          <div className="relative group flex-grow lg:w-80">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <MagnifyingGlassIcon className="h-5 w-5 text-[#B19CD9] group-focus-within:text-[#7A589B] transition-colors" />
+            </div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Find by name or email..."
+              className="w-full pl-12 pr-12 py-3.5 bg-[#FAF7FF] border-2 border-transparent focus:border-[#E6E6FA] focus:bg-white rounded-2xl outline-none text-sm font-bold text-[#5E4B8A] transition-all"
+            />
+            {searchTerm && (
+              <button onClick={() => setSearchTerm("")} className="absolute inset-y-0 right-0 pr-4 flex items-center">
+                <XMarkIcon className="h-5 w-5 text-slate-400 hover:text-red-500" />
+              </button>
+            )}
           </div>
+        </div>
+      </div>
 
+      {/* --- QUICK FILTERS BAR --- */}
+      <div className="flex flex-wrap items-center gap-3 pb-8 border-b border-slate-50">
+        <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
+          <CommandLineIcon className="h-4 w-4 text-slate-400" />
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="bg-transparent text-xs font-black text-[#5E4B8A] uppercase tracking-widest outline-none cursor-pointer"
+          >
+            <option value="">All Roles</option>
+            <option value="student">Students</option>
+            <option value="instructor">Instructors</option>
+            <option value="admin">Admins</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
+          <StarIcon className="h-4 w-4 text-slate-400" />
           <input
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="flex-1 sm:flex-none px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            className="bg-transparent text-xs font-black text-[#5E4B8A] outline-none"
           />
         </div>
       </div>
-
-      {/* Search Results Summary */}
-      {searchTerm && (
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-blue-800 text-sm">
-            Found <span className="font-bold">{filteredUsers.length}</span> users matching "{searchTerm}"
-          </p>
-        </div>
-      )}
     </div>
 
-    {/* Table Container - Hidden on Mobile, Flex on Desktop */}
-    <div className="relative border border-gray-200 rounded-lg overflow-hidden">
-      <div className="overflow-x-auto overflow-y-auto max-h-[600px]">
-        {/* Desktop Table View */}
-        <table className="min-w-full divide-y divide-gray-200 hidden md:table">
-          <thead className="bg-gray-50 sticky top-0 z-10">
+    {/* --- TABLE CONTENT --- */}
+    <div className="relative overflow-hidden bg-white">
+      <div className="overflow-x-auto overflow-y-auto max-h-[600px] custom-scrollbar">
+        {/* Desktop View */}
+        <table className="min-w-full hidden md:table">
+          <thead className="bg-[#FAF7FF]/50 sticky top-0 z-10 backdrop-blur-md">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Join Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-10 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">Member Profile</th>
+              <th className="px-6 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">Platform Role</th>
+              <th className="px-6 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">Live Status</th>
+              <th className="px-6 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">Security</th>
+              <th className="px-10 py-5 text-right text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">Control</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => (
-                <tr key={user._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-600 text-white font-bold">
-                        {user?.name?.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="ml-4 max-w-[200px]">
-                        <div className="text-sm font-medium text-gray-900 truncate">{user?.name}</div>
-                        <div className="text-xs text-gray-500 truncate">{user?.email}</div>
-                      </div>
+          <tbody className="divide-y divide-slate-50">
+            {filteredUsers.map((user) => (
+              <tr key={user._id} className="group hover:bg-[#FAF7FF]/30 transition-all">
+                <td className="px-10 py-5">
+                  <div className="flex items-center gap-4">
+                    <div className="relative shrink-0">
+                      {user?.avatar?.url ? (
+                        <img 
+                          src={user.avatar.url} 
+                          alt={user.name} 
+                          className="h-12 w-12 rounded-2xl object-cover ring-4 ring-white shadow-md group-hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#E6E6FA] to-[#B19CD9] flex items-center justify-center text-white font-black text-lg ring-4 ring-white shadow-md">
+                          {user?.name?.charAt(0)}
+                        </div>
+                      )}
+                      {/* Live Indicator */}
+                      {user?.lastLogin && (new Date() - new Date(user.lastLogin) < 300000) && (
+                        <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-white"></span>
+                        </span>
+                      )}
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
-                      user?.role === "admin" ? "bg-purple-100 text-purple-700" : 
-                      user?.role === "instructor" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
+                    <div className="min-w-0">
+                      <div className="text-sm font-black text-[#1A1A2E] truncate">{user?.name}</div>
+                      <div className="text-[11px] text-slate-400 font-bold truncate group-hover:text-[#967BB6] transition-colors">{user?.email}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-5">
+                  <div className="flex items-center gap-2">
+                    {user?.role === "admin" && <CommandLineIcon className="h-4 w-4 text-[#1A1A2E]" />}
+                    {user?.role === "instructor" && <AcademicCapIcon className="h-4 w-4 text-[#967BB6]" />}
+                    {user?.role === "student" && <UserIcon className="h-4 w-4 text-slate-400" />}
+                    <span className={`text-[10px] font-black uppercase tracking-tighter ${
+                      user?.role === "admin" ? "text-[#1A1A2E]" : 
+                      user?.role === "instructor" ? "text-[#7A589B]" : "text-slate-500"
                     }`}>
                       {user?.role}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(user?.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
-                      user?.isVerified ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                    }`}>
-                      {user?.isVerified ? "Verified" : "Unverified"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-3">
-                      <button onClick={() => navigate(`/user/${user?._id}`)} className="text-blue-600 hover:text-blue-900">
-                        <EyeIcon className="h-5 w-5" />
-                      </button>
-                      <button onClick={() => { if(window.confirm("Delete user?")) handleDeleteUser(user?._id); }} className="text-red-600 hover:text-red-900">
-                        <TrashIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : null}
-          </tbody>
-        </table>
-
-        {/* Mobile Card View (Visible only on small screens) */}
-        <div className="md:hidden divide-y divide-gray-200">
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
-              <div key={user._id} className="p-4 bg-white active:bg-gray-50">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-emerald-500 text-white font-bold">
-                      {user?.name?.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-bold text-gray-900">{user?.name}</p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
-                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => navigate(`/user/${user?._id}`)} className="p-2 bg-blue-50 text-blue-600 rounded-md">
+                </td>
+                <td className="px-6 py-5">
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-[#5E4B8A]">
+                      {user?.lastLogin ? formatDistanceToNow(new Date(user.lastLogin), { addSuffix: true }) : "Inactive"}
+                    </span>
+                    <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-0.5">Last Login</span>
+                  </div>
+                </td>
+                <td className="px-6 py-5">
+                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                    user?.isVerified ? "bg-green-50 text-green-600 border border-green-100" : "bg-red-50 text-red-600 border border-red-100"
+                  }`}>
+                    {user?.isVerified ? <CheckBadgeIcon className="h-3 w-3" /> : <NoSymbolIcon className="h-3 w-3" />}
+                    {user?.isVerified ? "Verified" : "Pending"}
+                  </div>
+                </td>
+                <td className="px-10 py-5 text-right">
+                  <div className="flex justify-end gap-2 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+                    <button onClick={() => navigate(`/user/${user?._id}`)} className="p-2.5 bg-white text-[#967BB6] hover:text-white hover:bg-[#967BB6] rounded-xl shadow-sm border border-slate-100 transition-all">
                       <EyeIcon className="h-5 w-5" />
                     </button>
-                    <button onClick={() => { if(window.confirm("Delete user?")) handleDeleteUser(user?._id); }} className="p-2 bg-red-50 text-red-600 rounded-md">
+                    <button onClick={() => handleDeleteUser(user?._id)} className="p-2.5 bg-white text-rose-400 hover:text-white hover:bg-rose-500 rounded-xl shadow-sm border border-slate-100 transition-all">
                       <TrashIcon className="h-5 w-5" />
                     </button>
                   </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Mobile View - Premium Cards */}
+        <div className="md:hidden space-y-4 p-4">
+          {filteredUsers.map((user) => (
+            <motion.div 
+              key={user._id} 
+              whileTap={{ scale: 0.98 }}
+              className="bg-[#FAF7FF]/50 border border-[#E6E6FA] rounded-3xl p-6 shadow-sm"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-2xl overflow-hidden shadow-lg border-2 border-white">
+                    {user?.avatar?.url ? (
+                      <img src={user.avatar.url} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-[#B19CD9] flex items-center justify-center font-black text-white text-xl">
+                        {user?.name?.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-base font-black text-[#1A1A2E] leading-tight truncate">{user?.name}</p>
+                    <span className="text-[10px] font-black text-[#967BB6] uppercase tracking-[0.1em]">{user?.role}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
-                    user?.role === "admin" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
-                  }`}>
-                    {user?.role}
-                  </span>
-                  <span className="text-gray-400">Joined {new Date(user?.createdAt).toLocaleDateString()}</span>
-                  <span className={user?.isVerified ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
-                    {user?.isVerified ? "Verified" : "Unverified"}
-                  </span>
+                <div className="flex gap-2">
+                   <button onClick={() => navigate(`/user/${user?._id}`)} className="p-3 bg-white text-[#B19CD9] rounded-2xl shadow-sm">
+                      <EyeIcon className="h-6 w-6" />
+                   </button>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="px-6 py-12 text-center text-gray-500">
-              <p>No users match your search criteria</p>
-            </div>
-          )}
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white/60 p-3 rounded-2xl border border-white">
+                  <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Status</p>
+                  <p className={`text-[11px] font-black uppercase ${user?.isVerified ? "text-green-600" : "text-rose-500"}`}>
+                    {user?.isVerified ? "Verified" : "Pending"}
+                  </p>
+                </div>
+                <div className="bg-white/60 p-3 rounded-2xl border border-white text-right">
+                  <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Last Activity</p>
+                  <p className="text-[11px] font-bold text-[#5E4B8A]">
+                    {user?.lastLogin ? formatDistanceToNow(new Date(user.lastLogin), { addSuffix: true }) : "N/A"}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
-      </div>
-    </div>
 
-    {/* Footer */}
-    <div className="mt-4 text-xs md:text-sm text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
-      <span>
-        Showing {filteredUsers.length} of {users?.length || 0} users
-      </span>
-      <span className="hidden sm:inline text-xs text-gray-400">
-        Scroll to see all users
-      </span>
+        {/* --- EMPTY STATE --- */}
+        {filteredUsers.length === 0 && (
+           <div className="py-24 text-center">
+              <div className="w-24 h-24 bg-[#FAF7FF] rounded-[2rem] flex items-center justify-center mx-auto mb-6 border-2 border-dashed border-[#E6E6FA]">
+                 <UserCircleIcon className="h-12 w-12 text-[#B19CD9]" />
+              </div>
+              <h3 className="text-xl font-black text-[#1A1A2E]">No Members Found</h3>
+              <p className="text-slate-400 text-sm mt-1">Adjust your search or filters to see results</p>
+           </div>
+        )}
+      </div>
     </div>
   </motion.div>
 )}
-
 
 
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
@@ -12,6 +11,7 @@ import {
   UserGroupIcon,
   ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
+import { Loader2 } from "lucide-react";
 import axios from "axios";
 import GithubLoginButton from "./GithubLoginButton ";
 import GoogleLoginButton from "./GoogleLoginButton ";
@@ -32,25 +32,19 @@ const Login = ({ setUser }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
- const apiUrl = import.meta.env.VITE_API_URL;
-
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   // handle Github Login auth0
   const handleGithubLogin = () => {
-    // Show loading toast
     const toastId = toast.loading("Redirecting to GitHub...");
-
     try {
       loginWithRedirect({
         authorizationParams: {
           connection: "github",
         },
       });
-
-      // Update toast to success
       toast.success("Redirecting to GitHub for login...", { id: toastId });
     } catch (error) {
-      // Show error if redirect fails
       toast.error("Failed to initiate GitHub login.", { id: toastId });
       console.error("GitHub login error:", error);
     }
@@ -58,17 +52,13 @@ const Login = ({ setUser }) => {
 
   // handle Google Login auth0
   const handleGoogleLogin = () => {
-    // Show loading toast
     const toastId = toast.loading("Redirecting to Google...");
-
     try {
       loginWithRedirect({
         authorizationParams: {
           connection: "google-oauth2",
         },
       });
-
-      // Optionally update the toast immediately
       toast.success("Redirecting to Google for login...", { id: toastId });
     } catch (error) {
       toast.error("Failed to initiate Google login.", { id: toastId });
@@ -80,7 +70,6 @@ const Login = ({ setUser }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Show a loading toast
     const toastId = toast.loading("Logging in...");
     try {
       const userRes = await axios.post(`${apiUrl}/api/auth/login`, {
@@ -94,8 +83,6 @@ const Login = ({ setUser }) => {
       localStorage.setItem("token", userRes?.data?.token);
       setUser(userRes?.data?.user);
 
-      // redux store management
-
       dispatch(
         loginSuccess({
           user: userRes?.data?.user,
@@ -103,10 +90,6 @@ const Login = ({ setUser }) => {
         }),
       );
       console.log("after redux");
-      // redux store management
-
-      // Redirect based on role
-      // navigate("/profile");
 
       if (userRes?.data?.user?.role === "student")
         navigate("/student-dashboard");
@@ -130,89 +113,90 @@ const Login = ({ setUser }) => {
   const roles = [
     {
       id: "student",
-      icon: <AcademicCapIcon className="h-8 w-8" />,
+      icon: <AcademicCapIcon className="h-6 w-6 sm:h-7 sm:w-7" />,
       label: "Student",
       description: "Access courses and learn",
     },
     {
       id: "instructor",
-      icon: <UserGroupIcon className="h-8 w-8" />,
+      icon: <UserGroupIcon className="h-6 w-6 sm:h-7 sm:w-7" />,
       label: "Instructor",
       description: "Teach and manage courses",
     },
     {
       id: "admin",
-      icon: <ShieldCheckIcon className="h-8 w-8" />,
+      icon: <ShieldCheckIcon className="h-6 w-6 sm:h-7 sm:w-7" />,
       label: "Admin",
       description: "Manage platform",
     },
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-[#FAF7FF] via-white to-[#E6E6FA] py-10 px-4 sm:px-6 lg:px-8 font-sans">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-4xl w-full space-y-8"
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="max-w-5xl w-full space-y-6 sm:space-y-8"
       >
         <div className="text-center">
           <motion.div
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
+            className="flex flex-col items-center"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-6">
-              <AcademicCapIcon className="h-10 w-10 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-4 sm:mb-6 shadow-lg shadow-[#B19CD9]/30 overflow-hidden bg-white">
+              <img src="Icon.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">
               Welcome Back
             </h2>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-500 font-medium px-4">
               Sign in to continue your learning journey
             </p>
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
           {/* Left Column - Role Selection */}
           <motion.div
-            initial={{ x: -50, opacity: 0 }}
+            initial={{ x: -30, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="bg-white p-8 rounded-2xl shadow-xl"
+            className="bg-white/90 backdrop-blur-xl p-5 sm:p-8 rounded-[2rem] shadow-xl shadow-[#E6E6FA]/60 border border-white flex flex-col h-full"
           >
-            <h3 className="text-xl font-bold text-gray-900 mb-6">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-5 sm:mb-6 text-center lg:text-left">
               Select Your Role
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4 flex-1 flex flex-col justify-center">
               {roles.map((roleItem) => (
                 <motion.button
                   key={roleItem.id}
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ scale: 1.015 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setRole(roleItem.id)}
-                  className={`w-full p-4 rounded-xl border-2 transition-all duration-300 ${
+                  className={`w-full p-3.5 sm:p-4 rounded-xl border-2 transition-all duration-300 ease-out text-left ${
                     role === roleItem.id
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-blue-300"
+                      ? "border-[#B19CD9] bg-[#FAF7FF] shadow-sm"
+                      : "border-gray-100 hover:border-[#D8BFD8] hover:bg-gray-50"
                   }`}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center w-full">
                     <div
-                      className={`p-3 rounded-lg ${
+                      className={`shrink-0 p-2.5 sm:p-3 rounded-xl transition-colors duration-300 ${
                         role === roleItem.id
-                          ? "bg-blue-100 text-blue-600"
-                          : "bg-gray-100 text-gray-600"
+                          ? "bg-[#E6E6FA] text-[#7A589B]"
+                          : "bg-gray-100 text-gray-500"
                       }`}
                     >
                       {roleItem.icon}
                     </div>
-                    <div className="ml-4 text-left">
-                      <div className="font-semibold text-gray-900">
+                    <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+                      <div className={`font-bold text-sm sm:text-base truncate ${role === roleItem.id ? "text-[#5E4B8A]" : "text-gray-900"}`}>
                         {roleItem.label}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className={`text-xs sm:text-sm mt-0.5 truncate ${role === roleItem.id ? "text-[#7A589B]" : "text-gray-500"}`}>
                         {roleItem.description}
                       </div>
                     </div>
@@ -224,47 +208,47 @@ const Login = ({ setUser }) => {
 
           {/* Right Column - Login Form */}
           <motion.div
-            initial={{ x: 50, opacity: 0 }}
+            initial={{ x: 30, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="bg-white p-8 rounded-2xl shadow-xl"
+            className="bg-white/90 backdrop-blur-xl p-5 sm:p-8 rounded-[2rem] shadow-xl shadow-[#E6E6FA]/60 border border-white flex flex-col h-full"
           >
-            <form onSubmit={handleLogin} className="space-y-6">
+            <form onSubmit={handleLogin} className="space-y-5 sm:space-y-6 flex-1 flex flex-col justify-center">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                   Email Address
                 </label>
-                <div className="relative">
-                  <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <div className="relative group">
+                  <EnvelopeIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#967BB6] transition-colors" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    placeholder="Enter Email..."
+                    className="pl-11 w-full px-4 py-3 sm:py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9] transition-all outline-none text-sm sm:text-base"
+                    placeholder="Email Address"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                   Password
                 </label>
-                <div className="relative">
-                  <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <div className="relative group">
+                  <LockClosedIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#967BB6] transition-colors" />
                   <input
                     type={showPassword ? "text" : "password"}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="pl-11 pr-12 w-full px-4 py-3 sm:py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9] transition-all outline-none text-sm sm:text-base"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1.5 rounded-lg hover:bg-[#F4EFFF] transition-colors"
                   >
                     {showPassword ? (
                       <EyeSlashIcon className="h-5 w-5 text-gray-400" />
@@ -275,70 +259,73 @@ const Login = ({ setUser }) => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between pt-1">
                 <div className="flex items-center">
                   <input
                     id="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+                    className="h-4 w-4 accent-[#967BB6] text-[#967BB6] focus:ring-[#B19CD9] border-gray-300 rounded cursor-pointer"
                   />
                   <label
                     htmlFor="remember-me"
-                    className="ml-2 block text-sm text-gray-700 cursor-pointer"
+                    className="ml-2 block text-xs sm:text-sm text-gray-600 font-medium cursor-pointer"
                   >
                     Remember me
                   </label>
                 </div>
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-xs sm:text-sm font-bold text-[#7A589B] hover:text-[#5E4B8A] transition-colors"
                 >
                   Forgot password?
                 </Link>
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.01, translateY: -2 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-[#B19CD9] to-[#967BB6] text-white py-3 sm:py-3.5 px-4 rounded-xl font-extrabold text-sm sm:text-base shadow-lg shadow-[#B19CD9]/30 hover:shadow-[#967BB6]/40 hover:from-[#A685E2] hover:to-[#8A63A6] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all duration-300 flex justify-center items-center mt-2"
               >
                 {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
                     Signing in...
-                  </div>
+                  </>
                 ) : (
                   "Sign In"
                 )}
               </motion.button>
             </form>
 
-            <div className="mt-6">
+            <div className="mt-6 sm:mt-8">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
+                  <div className="w-full border-t border-gray-200"></div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
+                <div className="relative flex justify-center text-xs sm:text-sm">
+                  <span className="px-4 bg-white text-gray-400 font-bold uppercase tracking-wider text-[10px] sm:text-xs">
                     Or continue with
                   </span>
                 </div>
               </div>
 
-              {/* login with social app  */}
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <GithubLoginButton onClick={handleGithubLogin} />
-                <GoogleLoginButton onClick={handleGoogleLogin} />
+              <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div className="flex-1">
+                  <GithubLoginButton onClick={handleGithubLogin} className="w-full" />
+                </div>
+                <div className="flex-1">
+                  <GoogleLoginButton onClick={handleGoogleLogin} className="w-full" />
+                </div>
               </div>
             </div>
 
-            <p className="mt-8 text-center text-sm text-gray-600">
+            <p className="mt-6 sm:mt-8 text-center text-sm text-gray-500 font-medium">
               Don't have an account?{" "}
               <Link
                 to="/register"
-                className="font-semibold text-blue-600 hover:text-blue-800"
+                className="font-bold text-[#7A589B] hover:text-[#5E4B8A] transition-colors"
               >
                 Sign up
               </Link>

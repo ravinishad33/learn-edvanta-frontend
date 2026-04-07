@@ -247,7 +247,7 @@ const CourseCatalog = () => {
                   <option value="paid">Premium</option>
                 </select>
                 <div className="text-xs md:text-sm text-[#967BB6] font-extrabold uppercase tracking-widest bg-[#FAF7FF] px-4 py-2.5 rounded-xl border border-[#E6E6FA]">
-                  {loading ? "..." : filteredCourses.length} items
+                  {loading ? "..." : filteredCourses.length} courses
                 </div>
               </div>
             </div>

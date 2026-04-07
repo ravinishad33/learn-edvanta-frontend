@@ -44,7 +44,13 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { ClockIcon, StarIcon, UserIcon, XCircleIcon } from "lucide-react";
+import {
+  ClockIcon,
+  StarIcon,
+  UserCircleIcon,
+  UserIcon,
+  XCircleIcon,
+} from "lucide-react";
 
 ChartJS.register(
   CategoryScale,
@@ -1019,231 +1025,314 @@ const AdminDashboard = () => {
           </motion.div>
         )}
 
-
-{activeTab === "users" && (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.98 }}
-    animate={{ opacity: 1, scale: 1 }}
-    className="bg-white rounded-[2.5rem] shadow-2xl shadow-[#E6E6FA]/40 border border-slate-100 overflow-hidden"
-  >
-    {/* --- HEADER & TOOLBAR --- */}
-    <div className="p-6 md:p-10 pb-0">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
-        <div>
-          <h2 className="text-3xl font-black text-[#1A1A2E] tracking-tight flex items-center gap-3">
-            Users
-            <span className="text-sm bg-[#FAF7FF] text-[#967BB6] px-3 py-1 rounded-full border border-[#E6E6FA]">
-              {filteredUsers.length} Total
-            </span>
-          </h2>
-          <p className="text-slate-500 font-medium mt-1">Manage permissions and monitor user activity</p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-3">
-          {/* Enhanced Search */}
-          <div className="relative group flex-grow lg:w-80">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-[#B19CD9] group-focus-within:text-[#7A589B] transition-colors" />
-            </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Find by name or email..."
-              className="w-full pl-12 pr-12 py-3.5 bg-[#FAF7FF] border-2 border-transparent focus:border-[#E6E6FA] focus:bg-white rounded-2xl outline-none text-sm font-bold text-[#5E4B8A] transition-all"
-            />
-            {searchTerm && (
-              <button onClick={() => setSearchTerm("")} className="absolute inset-y-0 right-0 pr-4 flex items-center">
-                <XMarkIcon className="h-5 w-5 text-slate-400 hover:text-red-500" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* --- QUICK FILTERS BAR --- */}
-      <div className="flex flex-wrap items-center gap-3 pb-8 border-b border-slate-50">
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
-          <CommandLineIcon className="h-4 w-4 text-slate-400" />
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="bg-transparent text-xs font-black text-[#5E4B8A] uppercase tracking-widest outline-none cursor-pointer"
+        {activeTab === "users" && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-[2.5rem] shadow-2xl shadow-[#E6E6FA]/40 border border-slate-100 overflow-hidden"
           >
-            <option value="">All Roles</option>
-            <option value="student">Students</option>
-            <option value="instructor">Instructors</option>
-            <option value="admin">Admins</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
-          <StarIcon className="h-4 w-4 text-slate-400" />
-          <input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="bg-transparent text-xs font-black text-[#5E4B8A] outline-none"
-          />
-        </div>
-      </div>
-    </div>
-
-    {/* --- TABLE CONTENT --- */}
-    <div className="relative overflow-hidden bg-white">
-      <div className="overflow-x-auto overflow-y-auto max-h-[600px] custom-scrollbar">
-        {/* Desktop View */}
-        <table className="min-w-full hidden md:table">
-          <thead className="bg-[#FAF7FF]/50 sticky top-0 z-10 backdrop-blur-md">
-            <tr>
-              <th className="px-10 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">Member Profile</th>
-              <th className="px-6 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">Platform Role</th>
-              <th className="px-6 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">Live Status</th>
-              <th className="px-6 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">Security</th>
-              <th className="px-10 py-5 text-right text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">Control</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {filteredUsers.map((user) => (
-              <tr key={user._id} className="group hover:bg-[#FAF7FF]/30 transition-all">
-                <td className="px-10 py-5">
-                  <div className="flex items-center gap-4">
-                    <div className="relative shrink-0">
-                      {user?.avatar?.url ? (
-                        <img 
-                          src={user.avatar.url} 
-                          alt={user.name} 
-                          className="h-12 w-12 rounded-2xl object-cover ring-4 ring-white shadow-md group-hover:scale-105 transition-transform"
-                        />
-                      ) : (
-                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#E6E6FA] to-[#B19CD9] flex items-center justify-center text-white font-black text-lg ring-4 ring-white shadow-md">
-                          {user?.name?.charAt(0)}
-                        </div>
-                      )}
-                      {/* Live Indicator */}
-                      {user?.lastLogin && (new Date() - new Date(user.lastLogin) < 300000) && (
-                        <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-white"></span>
-                        </span>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-black text-[#1A1A2E] truncate">{user?.name}</div>
-                      <div className="text-[11px] text-slate-400 font-bold truncate group-hover:text-[#967BB6] transition-colors">{user?.email}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="flex items-center gap-2">
-                    {user?.role === "admin" && <CommandLineIcon className="h-4 w-4 text-[#1A1A2E]" />}
-                    {user?.role === "instructor" && <AcademicCapIcon className="h-4 w-4 text-[#967BB6]" />}
-                    {user?.role === "student" && <UserIcon className="h-4 w-4 text-slate-400" />}
-                    <span className={`text-[10px] font-black uppercase tracking-tighter ${
-                      user?.role === "admin" ? "text-[#1A1A2E]" : 
-                      user?.role === "instructor" ? "text-[#7A589B]" : "text-slate-500"
-                    }`}>
-                      {user?.role}
+            {/* --- HEADER & TOOLBAR --- */}
+            <div className="p-6 md:p-10 pb-0">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
+                <div>
+                  <h2 className="text-3xl font-black text-[#1A1A2E] tracking-tight flex items-center gap-3">
+                    Users
+                    <span className="text-sm bg-[#FAF7FF] text-[#967BB6] px-3 py-1 rounded-full border border-[#E6E6FA]">
+                      {filteredUsers.length} Total
                     </span>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-[#5E4B8A]">
-                      {user?.lastLogin ? formatDistanceToNow(new Date(user.lastLogin), { addSuffix: true }) : "Inactive"}
-                    </span>
-                    <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-0.5">Last Login</span>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                    user?.isVerified ? "bg-green-50 text-green-600 border border-green-100" : "bg-red-50 text-red-600 border border-red-100"
-                  }`}>
-                    {user?.isVerified ? <CheckBadgeIcon className="h-3 w-3" /> : <NoSymbolIcon className="h-3 w-3" />}
-                    {user?.isVerified ? "Verified" : "Pending"}
-                  </div>
-                </td>
-                <td className="px-10 py-5 text-right">
-                  <div className="flex justify-end gap-2 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-                    <button onClick={() => navigate(`/user/${user?._id}`)} className="p-2.5 bg-white text-[#967BB6] hover:text-white hover:bg-[#967BB6] rounded-xl shadow-sm border border-slate-100 transition-all">
-                      <EyeIcon className="h-5 w-5" />
-                    </button>
-                    <button onClick={() => handleDeleteUser(user?._id)} className="p-2.5 bg-white text-rose-400 hover:text-white hover:bg-rose-500 rounded-xl shadow-sm border border-slate-100 transition-all">
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </h2>
+                  <p className="text-slate-500 font-medium mt-1">
+                    Manage permissions and monitor user activity
+                  </p>
+                </div>
 
-        {/* Mobile View - Premium Cards */}
-        <div className="md:hidden space-y-4 p-4">
-          {filteredUsers.map((user) => (
-            <motion.div 
-              key={user._id} 
-              whileTap={{ scale: 0.98 }}
-              className="bg-[#FAF7FF]/50 border border-[#E6E6FA] rounded-3xl p-6 shadow-sm"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-14 w-14 rounded-2xl overflow-hidden shadow-lg border-2 border-white">
-                    {user?.avatar?.url ? (
-                      <img src={user.avatar.url} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-[#B19CD9] flex items-center justify-center font-black text-white text-xl">
-                        {user?.name?.charAt(0)}
-                      </div>
+                <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-3">
+                  {/* Enhanced Search */}
+                  <div className="relative group flex-grow lg:w-80">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <MagnifyingGlassIcon className="h-5 w-5 text-[#B19CD9] group-focus-within:text-[#7A589B] transition-colors" />
+                    </div>
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Find by name or email..."
+                      className="w-full pl-12 pr-12 py-3.5 bg-[#FAF7FF] border-2 border-transparent focus:border-[#E6E6FA] focus:bg-white rounded-2xl outline-none text-sm font-bold text-[#5E4B8A] transition-all"
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm("")}
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                      >
+                        <XMarkIcon className="h-5 w-5 text-slate-400 hover:text-red-500" />
+                      </button>
                     )}
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-base font-black text-[#1A1A2E] leading-tight truncate">{user?.name}</p>
-                    <span className="text-[10px] font-black text-[#967BB6] uppercase tracking-[0.1em]">{user?.role}</span>
+                </div>
+              </div>
+
+              {/* --- QUICK FILTERS BAR --- */}
+              <div className="flex flex-wrap items-center gap-3 pb-8 border-b border-slate-50">
+                <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
+                  <CommandLineIcon className="h-4 w-4 text-slate-400" />
+                  <select
+                    value={roleFilter}
+                    onChange={(e) => setRoleFilter(e.target.value)}
+                    className="bg-transparent text-xs font-black text-[#5E4B8A] uppercase tracking-widest outline-none cursor-pointer"
+                  >
+                    <option value="">All Roles</option>
+                    <option value="student">Students</option>
+                    <option value="instructor">Instructors</option>
+                    <option value="admin">Admins</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
+                  <StarIcon className="h-4 w-4 text-slate-400" />
+                  <input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="bg-transparent text-xs font-black text-[#5E4B8A] outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* --- TABLE CONTENT --- */}
+            <div className="relative overflow-hidden bg-white">
+              <div className="overflow-x-auto overflow-y-auto max-h-[600px] custom-scrollbar">
+                {/* Desktop View */}
+                <table className="min-w-full hidden md:table">
+                  <thead className="bg-[#FAF7FF]/50 sticky top-0 z-10 backdrop-blur-md">
+                    <tr>
+                      <th className="px-10 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">
+                        Member Profile
+                      </th>
+                      <th className="px-6 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">
+                        Platform Role
+                      </th>
+                      <th className="px-6 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">
+                        Live Status
+                      </th>
+                      <th className="px-6 py-5 text-left text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">
+                        Security
+                      </th>
+                      <th className="px-10 py-5 text-right text-[10px] font-black text-[#967BB6] uppercase tracking-[0.2em]">
+                        Control
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {filteredUsers.map((user) => (
+                      <tr
+                        key={user._id}
+                        className="group hover:bg-[#FAF7FF]/30 transition-all"
+                      >
+                        <td className="px-10 py-5">
+                          <div className="flex items-center gap-4">
+                            <div className="relative shrink-0">
+                              {user?.avatar?.url ? (
+                                <img
+                                  src={user.avatar.url}
+                                  alt={user.name}
+                                  className="h-12 w-12 rounded-2xl object-cover ring-4 ring-white shadow-md group-hover:scale-105 transition-transform"
+                                />
+                              ) : (
+                                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#E6E6FA] to-[#B19CD9] flex items-center justify-center text-white font-black text-lg ring-4 ring-white shadow-md">
+                                  {user?.name?.charAt(0)}
+                                </div>
+                              )}
+                              {/* Live Indicator */}
+                              {user?.lastLogin &&
+                                new Date() - new Date(user.lastLogin) <
+                                  300000 && (
+                                  <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-white"></span>
+                                  </span>
+                                )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-sm font-black text-[#1A1A2E] truncate">
+                                {user?.name}
+                              </div>
+                              <div className="text-[11px] text-slate-400 font-bold truncate group-hover:text-[#967BB6] transition-colors">
+                                {user?.email}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-2">
+                            {user?.role === "admin" && (
+                              <CommandLineIcon className="h-4 w-4 text-[#1A1A2E]" />
+                            )}
+                            {user?.role === "instructor" && (
+                              <AcademicCapIcon className="h-4 w-4 text-[#967BB6]" />
+                            )}
+                            {user?.role === "student" && (
+                              <UserIcon className="h-4 w-4 text-slate-400" />
+                            )}
+                            <span
+                              className={`text-[10px] font-black uppercase tracking-tighter ${
+                                user?.role === "admin"
+                                  ? "text-[#1A1A2E]"
+                                  : user?.role === "instructor"
+                                    ? "text-[#7A589B]"
+                                    : "text-slate-500"
+                              }`}
+                            >
+                              {user?.role}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-[#5E4B8A]">
+                              {user?.lastLogin
+                                ? formatDistanceToNow(
+                                    new Date(user.lastLogin),
+                                    { addSuffix: true },
+                                  )
+                                : "Inactive"}
+                            </span>
+                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-0.5">
+                              Last Login
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          <div
+                            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                              user?.isVerified
+                                ? "bg-green-50 text-green-600 border border-green-100"
+                                : "bg-red-50 text-red-600 border border-red-100"
+                            }`}
+                          >
+                            {user?.isVerified ? (
+                              <CheckBadgeIcon className="h-3 w-3" />
+                            ) : (
+                              <NoSymbolIcon className="h-3 w-3" />
+                            )}
+                            {user?.isVerified ? "Verified" : "Pending"}
+                          </div>
+                        </td>
+                        <td className="px-10 py-5 text-right">
+                          <div className="flex justify-end gap-2 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+                            <button
+                              onClick={() => navigate(`/user/${user?._id}`)}
+                              className="p-2.5 bg-white text-[#967BB6] hover:text-white hover:bg-[#967BB6] rounded-xl shadow-sm border border-slate-100 transition-all"
+                            >
+                              <EyeIcon className="h-5 w-5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                const confirmDelete = window.confirm(
+                                  "Are you sure you want to delete this user?",
+                                );
+                                if (confirmDelete) {
+                                  handleDeleteUser(user?._id);
+                                }
+                              }}
+                              className="p-2.5 bg-white text-rose-400 hover:text-white hover:bg-rose-500 rounded-xl shadow-sm border border-slate-100 transition-all"
+                            >
+                              <TrashIcon className="h-5 w-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Mobile View - Premium Cards */}
+                <div className="md:hidden space-y-4 p-4">
+                  {filteredUsers.map((user) => (
+                    <motion.div
+                      key={user._id}
+                      whileTap={{ scale: 0.98 }}
+                      className="bg-[#FAF7FF]/50 border border-[#E6E6FA] rounded-3xl p-6 shadow-sm"
+                    >
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-4">
+                          <div className="h-14 w-14 rounded-2xl overflow-hidden shadow-lg border-2 border-white">
+                            {user?.avatar?.url ? (
+                              <img
+                                src={user.avatar.url}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-[#B19CD9] flex items-center justify-center font-black text-white text-xl">
+                                {user?.name?.charAt(0)}
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-base font-black text-[#1A1A2E] leading-tight truncate">
+                              {user?.name}
+                            </p>
+                            <span className="text-[10px] font-black text-[#967BB6] uppercase tracking-[0.1em]">
+                              {user?.role}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => navigate(`/user/${user?._id}`)}
+                            className="p-3 bg-white text-[#B19CD9] rounded-2xl shadow-sm"
+                          >
+                            <EyeIcon className="h-6 w-6" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white/60 p-3 rounded-2xl border border-white">
+                          <p className="text-[9px] font-black text-slate-400 uppercase mb-1">
+                            Status
+                          </p>
+                          <p
+                            className={`text-[11px] font-black uppercase ${user?.isVerified ? "text-green-600" : "text-rose-500"}`}
+                          >
+                            {user?.isVerified ? "Verified" : "Pending"}
+                          </p>
+                        </div>
+                        <div className="bg-white/60 p-3 rounded-2xl border border-white text-right">
+                          <p className="text-[9px] font-black text-slate-400 uppercase mb-1">
+                            Last Activity
+                          </p>
+                          <p className="text-[11px] font-bold text-[#5E4B8A]">
+                            {user?.lastLogin
+                              ? formatDistanceToNow(new Date(user.lastLogin), {
+                                  addSuffix: true,
+                                })
+                              : "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* --- EMPTY STATE --- */}
+                {filteredUsers.length === 0 && (
+                  <div className="py-24 text-center">
+                    <div className="w-24 h-24 bg-[#FAF7FF] rounded-[2rem] flex items-center justify-center mx-auto mb-6 border-2 border-dashed border-[#E6E6FA]">
+                      <UserCircleIcon className="h-12 w-12 text-[#B19CD9]" />
+                    </div>
+                    <h3 className="text-xl font-black text-[#1A1A2E]">
+                      No Members Found
+                    </h3>
+                    <p className="text-slate-400 text-sm mt-1">
+                      Adjust your search or filters to see results
+                    </p>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                   <button onClick={() => navigate(`/user/${user?._id}`)} className="p-3 bg-white text-[#B19CD9] rounded-2xl shadow-sm">
-                      <EyeIcon className="h-6 w-6" />
-                   </button>
-                </div>
+                )}
               </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white/60 p-3 rounded-2xl border border-white">
-                  <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Status</p>
-                  <p className={`text-[11px] font-black uppercase ${user?.isVerified ? "text-green-600" : "text-rose-500"}`}>
-                    {user?.isVerified ? "Verified" : "Pending"}
-                  </p>
-                </div>
-                <div className="bg-white/60 p-3 rounded-2xl border border-white text-right">
-                  <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Last Activity</p>
-                  <p className="text-[11px] font-bold text-[#5E4B8A]">
-                    {user?.lastLogin ? formatDistanceToNow(new Date(user.lastLogin), { addSuffix: true }) : "N/A"}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* --- EMPTY STATE --- */}
-        {filteredUsers.length === 0 && (
-           <div className="py-24 text-center">
-              <div className="w-24 h-24 bg-[#FAF7FF] rounded-[2rem] flex items-center justify-center mx-auto mb-6 border-2 border-dashed border-[#E6E6FA]">
-                 <UserCircleIcon className="h-12 w-12 text-[#B19CD9]" />
-              </div>
-              <h3 className="text-xl font-black text-[#1A1A2E]">No Members Found</h3>
-              <p className="text-slate-400 text-sm mt-1">Adjust your search or filters to see results</p>
-           </div>
+            </div>
+          </motion.div>
         )}
-      </div>
-    </div>
-  </motion.div>
-)}
-
-
-
 
         {activeTab === "courses" && (
           <motion.div

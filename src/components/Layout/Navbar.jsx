@@ -55,7 +55,7 @@ const Navbar = () => {
     { path: "/courses", label: "Courses", icon: <MdSchool /> },
     {
       path: "/mycourses",
-      label: user?.role === "admin" ? "Manage" : "My Learning",
+      label: user?.role === "admin" || user?.role === "instructor" ? "Manage" : "My Learning",
       icon: <MdLibraryBooks />,
     },
     ...(user?.role === "instructor" ? [{ path: "/createcourse", label: "Create", icon: <FiBook />, highlight: true }] : []),

@@ -270,10 +270,9 @@ const Register = ({ setUser }) => {
     const toastId = toast.loading("Sending verification code...");
 
     try {
-      const response = await axios.post(
-        `${apiUrl}/api/otp/send-register-otp`,
-        { email: formData.email }
-      );
+      const response = await axios.post(`${apiUrl}/api/otp/send-register-otp`, {
+        email: formData.email,
+      });
 
       setOtpSent(true);
       setOtpTimer(60);
@@ -283,7 +282,7 @@ const Register = ({ setUser }) => {
       console.error("OTP send error:", error);
       toast.error(
         error.response?.data?.message || "Failed to send verification code",
-        { id: toastId }
+        { id: toastId },
       );
     } finally {
       setOtpLoading(false);
@@ -307,17 +306,16 @@ const Register = ({ setUser }) => {
           email: formData.email,
           otp: otpString,
           tempUserId,
-        }
+        },
       );
 
       setOtpVerified(true);
       toast.success("Email verified successfully!", { id: toastId });
     } catch (error) {
       console.error("OTP verify error:", error);
-      toast.error(
-        error.response?.data?.message || "Invalid or expired code",
-        { id: toastId }
-      );
+      toast.error(error.response?.data?.message || "Invalid or expired code", {
+        id: toastId,
+      });
       setOtp(["", "", "", "", "", ""]);
       otpRefs[0].current.focus();
     } finally {
@@ -330,10 +328,9 @@ const Register = ({ setUser }) => {
     const toastId = toast.loading("Resending verification code...");
 
     try {
-      const response = await axios.post(
-        `${apiUrl}/api/otp/send-register-otp`,
-        { email: formData.email }
-      );
+      const response = await axios.post(`${apiUrl}/api/otp/send-register-otp`, {
+        email: formData.email,
+      });
 
       setOtpTimer(60);
       setCanResend(false);
@@ -401,12 +398,12 @@ const Register = ({ setUser }) => {
 
     const { confirmPassword, ...dataToSend } = formData;
     const toastId = toast.loading("Registering user...");
-    
+
     try {
-      const response = await axios.post(
-        `${apiUrl}/api/auth/register`,
-        { ...dataToSend, tempUserId }
-      );
+      const response = await axios.post(`${apiUrl}/api/auth/register`, {
+        ...dataToSend,
+        tempUserId,
+      });
 
       toast.success(response.data.message || "Registration successful!", {
         id: toastId,
@@ -432,15 +429,20 @@ const Register = ({ setUser }) => {
             toast.error(
               error.response.data.error ||
                 error.response.data.message ||
-                "Registration failed"
+                "Registration failed",
             );
           }
+        } else if (error.response.status == 403) {
+          toast.error(error.response.data.message);
         } else if (error.response.status === 409) {
           setErrors((prev) => ({
             ...prev,
-            email: "Email already registered. Please use a different email or login.",
+            email:
+              "Email already registered. Please use a different email or login.",
           }));
-          toast.error("Email already registered. Please use a different email or login.");
+          toast.error(
+            "Email already registered. Please use a different email or login.",
+          );
         } else {
           toast.error("Server error. Please try again later.");
         }
@@ -468,7 +470,11 @@ const Register = ({ setUser }) => {
             animate={{ y: 0, opacity: 1 }}
             className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full mb-4 sm:mb-6 shadow-lg shadow-[#B19CD9]/30 overflow-hidden"
           >
-            <img src="Icon.png" alt="Logo" className="w-full h-full object-cover" />
+            <img
+              src="Icon.png"
+              alt="Logo"
+              className="w-full h-full object-cover"
+            />
           </motion.div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">
             Create Your Account
@@ -485,14 +491,13 @@ const Register = ({ setUser }) => {
           className="bg-white/90 backdrop-blur-xl p-5 sm:p-8 md:p-10 rounded-[2rem] shadow-xl shadow-[#E6E6FA]/60 border border-white"
         >
           <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-            
             {/* Role Selection */}
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-3">
                 I want to join as:
               </label>
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                {["student", "instructor", "admin"].map((role) => (
+                {["student", "instructor"].map((role) => (
                   <button
                     key={role}
                     type="button"
@@ -503,7 +508,9 @@ const Register = ({ setUser }) => {
                         : "border-gray-100 hover:border-[#D8BFD8] hover:bg-gray-50 text-gray-500"
                     }`}
                   >
-                    <span className="capitalize block text-center w-full">{role}</span>
+                    <span className="capitalize block text-center w-full">
+                      {role}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -524,14 +531,18 @@ const Register = ({ setUser }) => {
                   onChange={handleChange}
                   onBlur={() => handleBlur("name")}
                   className={`pl-11 w-full px-4 py-3 sm:py-3.5 bg-gray-50/50 border rounded-xl focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9] transition-all outline-none text-sm sm:text-base ${
-                    touched.name && errors.name ? "border-red-400" : "border-gray-200"
+                    touched.name && errors.name
+                      ? "border-red-400"
+                      : "border-gray-200"
                   }`}
                   placeholder="Full Name"
                   disabled={otpVerified}
                 />
               </div>
               {touched.name && errors.name && (
-                <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.name}</p>
+                <p className="mt-1.5 text-xs font-semibold text-red-500">
+                  {errors.name}
+                </p>
               )}
             </div>
 
@@ -553,8 +564,8 @@ const Register = ({ setUser }) => {
                     touched.email && errors.email
                       ? "border-red-400 focus:ring-4 focus:ring-red-500/10 focus:border-red-400"
                       : otpVerified
-                      ? "border-green-400 bg-green-50/60 text-green-800"
-                      : "border-gray-200 focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9]"
+                        ? "border-green-400 bg-green-50/60 text-green-800"
+                        : "border-gray-200 focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9]"
                   }`}
                   placeholder="Email Address"
                   disabled={otpVerified}
@@ -574,7 +585,9 @@ const Register = ({ setUser }) => {
                 )}
               </div>
               {touched.email && errors.email && (
-                <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.email}</p>
+                <p className="mt-1.5 text-xs font-semibold text-red-500">
+                  {errors.email}
+                </p>
               )}
             </div>
 
@@ -599,7 +612,9 @@ const Register = ({ setUser }) => {
                           type="text"
                           maxLength="1"
                           value={digit}
-                          onChange={(e) => handleOtpChange(index, e.target.value)}
+                          onChange={(e) =>
+                            handleOtpChange(index, e.target.value)
+                          }
                           onKeyDown={(e) => handleOtpKeyDown(index, e)}
                           className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-black text-[#5E4B8A] bg-white border-2 border-[#E6E6FA] rounded-xl focus:border-[#B19CD9] focus:ring-4 focus:ring-[#E6E6FA]/50 transition-all outline-none disabled:opacity-50 shadow-sm"
                           disabled={otpLoading}
@@ -617,7 +632,7 @@ const Register = ({ setUser }) => {
                     >
                       {otpLoading ? "Verifying..." : "Verify Code"}
                     </button>
-                    
+
                     <div className="text-xs sm:text-sm font-semibold">
                       {canResend ? (
                         <button
@@ -629,7 +644,8 @@ const Register = ({ setUser }) => {
                         </button>
                       ) : (
                         <span className="text-gray-500">
-                          Resend in <span className="text-[#967BB6]">{otpTimer}s</span>
+                          Resend in{" "}
+                          <span className="text-[#967BB6]">{otpTimer}s</span>
                         </span>
                       )}
                     </div>
@@ -641,7 +657,8 @@ const Register = ({ setUser }) => {
             {/* Phone Field */}
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
-                Phone Number <span className="text-gray-400 font-medium">(Optional)</span>
+                Phone Number{" "}
+                <span className="text-gray-400 font-medium">(Optional)</span>
               </label>
               <div className="relative group">
                 <PhoneIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#967BB6] transition-colors" />
@@ -652,13 +669,17 @@ const Register = ({ setUser }) => {
                   onChange={handleChange}
                   onBlur={() => handleBlur("phone")}
                   className={`pl-11 w-full px-4 py-3 sm:py-3.5 bg-gray-50/50 border rounded-xl outline-none transition-all focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9] text-sm sm:text-base ${
-                    touched.phone && errors.phone ? "border-red-400" : "border-gray-200"
+                    touched.phone && errors.phone
+                      ? "border-red-400"
+                      : "border-gray-200"
                   }`}
                   placeholder="+91 9678541254"
                 />
               </div>
               {touched.phone && errors.phone && (
-                <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.phone}</p>
+                <p className="mt-1.5 text-xs font-semibold text-red-500">
+                  {errors.phone}
+                </p>
               )}
             </div>
 
@@ -677,7 +698,9 @@ const Register = ({ setUser }) => {
                   onChange={handleChange}
                   onBlur={() => handleBlur("password")}
                   className={`pl-11 pr-12 w-full px-4 py-3 sm:py-3.5 bg-gray-50/50 border rounded-xl outline-none transition-all focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9] text-sm sm:text-base ${
-                    touched.password && errors.password ? "border-red-400" : "border-gray-200"
+                    touched.password && errors.password
+                      ? "border-red-400"
+                      : "border-gray-200"
                   }`}
                   placeholder="••••••••"
                 />
@@ -694,7 +717,9 @@ const Register = ({ setUser }) => {
                 </button>
               </div>
               {touched.password && errors.password && (
-                <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.password}</p>
+                <p className="mt-1.5 text-xs font-semibold text-red-500">
+                  {errors.password}
+                </p>
               )}
             </div>
 
@@ -711,7 +736,9 @@ const Register = ({ setUser }) => {
                     <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">
                       Password Strength
                     </span>
-                    <span className={`text-[10px] sm:text-xs font-extrabold uppercase tracking-wide ${passwordStrength.color}`}>
+                    <span
+                      className={`text-[10px] sm:text-xs font-extrabold uppercase tracking-wide ${passwordStrength.color}`}
+                    >
                       {passwordStrength.message}
                     </span>
                   </div>
@@ -719,7 +746,9 @@ const Register = ({ setUser }) => {
                   <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden flex">
                     <div
                       className={`h-full transition-all duration-500 ease-out rounded-full ${passwordStrength.progressColor}`}
-                      style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                      style={{
+                        width: `${(passwordStrength.score / 5) * 100}%`,
+                      }}
                     />
                   </div>
 
@@ -733,7 +762,9 @@ const Register = ({ setUser }) => {
                         )}
                         <span
                           className={`text-xs font-semibold ${
-                            passwordStrength.requirements[req.id] ? "text-gray-700" : "text-gray-400"
+                            passwordStrength.requirements[req.id]
+                              ? "text-gray-700"
+                              : "text-gray-400"
                           }`}
                         >
                           {req.label}
@@ -760,7 +791,9 @@ const Register = ({ setUser }) => {
                   onChange={handleChange}
                   onBlur={() => handleBlur("confirmPassword")}
                   className={`pl-11 pr-12 w-full px-4 py-3 sm:py-3.5 bg-gray-50/50 border rounded-xl outline-none transition-all focus:bg-white focus:ring-4 focus:ring-[#E6E6FA] focus:border-[#B19CD9] text-sm sm:text-base ${
-                    touched.confirmPassword && errors.confirmPassword ? "border-red-400" : "border-gray-200"
+                    touched.confirmPassword && errors.confirmPassword
+                      ? "border-red-400"
+                      : "border-gray-200"
                   }`}
                   placeholder="••••••••"
                 />
@@ -796,11 +829,17 @@ const Register = ({ setUser }) => {
               <div className="ml-3 text-xs sm:text-sm">
                 <label htmlFor="terms" className="text-gray-600 font-semibold">
                   I agree to the{" "}
-                  <Link to="/terms" className="text-[#7A589B] hover:text-[#5E4B8A] transition-colors">
+                  <Link
+                    to="/terms"
+                    className="text-[#7A589B] hover:text-[#5E4B8A] transition-colors"
+                  >
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link to="/privacy" className="text-[#7A589B] hover:text-[#5E4B8A] transition-colors">
+                  <Link
+                    to="/privacy"
+                    className="text-[#7A589B] hover:text-[#5E4B8A] transition-colors"
+                  >
                     Privacy Policy
                   </Link>
                 </label>
@@ -841,10 +880,16 @@ const Register = ({ setUser }) => {
 
             <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
               <div className="flex-1">
-                <GithubLoginButton onClick={handleGithubLogin} className="w-full" />
+                <GithubLoginButton
+                  onClick={handleGithubLogin}
+                  className="w-full"
+                />
               </div>
               <div className="flex-1">
-                <GoogleLoginButton onClick={handleGoogleLogin} className="w-full" />
+                <GoogleLoginButton
+                  onClick={handleGoogleLogin}
+                  className="w-full"
+                />
               </div>
             </div>
           </div>

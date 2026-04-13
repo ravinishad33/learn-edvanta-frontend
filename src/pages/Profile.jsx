@@ -685,12 +685,7 @@ const Profile = () => {
                           </div>
 
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-100 mt-6">
-                            <NavLink
-                              to="/forgot-password"
-                              className="text-sm text-[#7A589B] hover:text-[#5E4B8A] font-bold transition-colors"
-                            >
-                              Forgot your password?
-                            </NavLink>
+
                             <button
                               onClick={handleUpdatePassword}
                               disabled={loading}

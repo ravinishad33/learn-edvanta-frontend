@@ -151,7 +151,7 @@ const AdminCategoryManagement = () => {
     } catch (e) { toast.error("Delete failed"); }
   };
 
-  // SUBCATEGORY CRUD (identical logic)
+  // subcategory crud
   const handleCreateSubcategory = async () => {
     try {
       const token = localStorage.getItem("token");

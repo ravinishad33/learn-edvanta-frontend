@@ -147,7 +147,7 @@ const LearningInterface = () => {
 
         setCourse(courseData);
         setEnrollment(enrollmentData);
-        setUserReview(enrollmentData?.userReview);
+        setUserReview(courseData?.reviews);
 
         if (
           enrollmentData?.progress === 100 ||
@@ -412,6 +412,26 @@ const LearningInterface = () => {
       });
     }
   };
+
+
+
+
+
+  useEffect(() => {
+  if (showReviewModal && userReview) {
+    setRating(userReview.rating || 0);
+    setReviewComment(userReview.comment || "");
+  }
+
+  if (showReviewModal && !userReview) {
+    setRating(0);
+    setReviewComment("");
+  }
+}, [showReviewModal, userReview]);
+
+
+
+
 
   const handleEditSubmit = async (id) => {
     if (!editText.trim()) return;

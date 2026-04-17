@@ -1,4 +1,3 @@
-// src/pages/LearningInterface.js
 import React, {
   useEffect,
   useRef,
@@ -381,7 +380,7 @@ const LearningInterface = () => {
       setEnrollment(enrollmentData);
 
 
-        setUserReview(courseData?.reviews);
+      setUserReview(courseData?.reviews);
 
 
       setMeetings(courseData?.meetings || []);
@@ -570,6 +569,26 @@ const LearningInterface = () => {
         );
       });
 
+      //  Real-time meeting listeners
+      socket.on("new_meeting", (meeting) => {
+        setMeetings((prev) => {
+          if (prev.some((m) => m._id === meeting._id)) return prev;
+          return [...prev, meeting];
+        });
+        setCourse((prev) => ({
+          ...prev,
+          meetings: [...(prev?.meetings || []), meeting],
+        }));
+      });
+
+      socket.on("deleted_meeting", ({ id }) => {
+        setMeetings((prev) => prev.filter((m) => m._id !== id));
+        setCourse((prev) => ({
+          ...prev,
+          meetings: prev?.meetings?.filter((m) => m._id !== id) || [],
+        }));
+      });
+
       return socket;
     };
 
@@ -702,8 +721,6 @@ const LearningInterface = () => {
     [apiUrl],
   );
 
-
-
   useEffect(() => {
     if (showReviewModal && userReview) {
       setRating(userReview.rating || 0);
@@ -715,9 +732,6 @@ const LearningInterface = () => {
       setReviewComment("");
     }
   }, [showReviewModal, userReview]);
-
-
-
 
   const handleEditSubmit = useCallback(
     async (id) => {
@@ -1166,16 +1180,25 @@ const LearningInterface = () => {
     [meetings, courseId, apiUrl],
   );
 
+  // ADDED: Calculate the minimum exact time securely to IST
   const getMinDateTime = useCallback(() => {
     const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    return now.toISOString().slice(0, 16);
+    const utcOffset = now.getTimezoneOffset() * 60000;
+    const utcTime = now.getTime() + utcOffset;
+    const istTime = new Date(utcTime + (330 * 60000)); // IST is UTC + 5:30
+    const year = istTime.getFullYear();
+    const month = String(istTime.getMonth() + 1).padStart(2, "0");
+    const date = String(istTime.getDate()).padStart(2, "0");
+    const hours = String(istTime.getHours()).padStart(2, "0");
+    const minutes = String(istTime.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${date}T${hours}:${minutes}`;
   }, []);
 
+  // ADDED: Get status based on strict Unix Timestamp evaluation, preventing localized visual bugs
   const getMeetingStatus = useCallback((meeting) => {
-    const now = new Date();
-    const startTime = new Date(meeting.startTime);
-    const endTime = new Date(startTime.getTime() + meeting.duration * 60000);
+    const now = new Date().getTime();
+    const startTime = new Date(meeting.startTime).getTime();
+    const endTime = startTime + meeting.duration * 60000;
 
     if (now < startTime) return "upcoming";
     if (now >= startTime && now <= endTime) return "live";
@@ -1183,9 +1206,9 @@ const LearningInterface = () => {
   }, []);
 
   const getMeetingStatusDetailed = useCallback((meeting) => {
-    const now = new Date();
-    const startTime = new Date(meeting.startTime);
-    const endTime = new Date(startTime.getTime() + meeting.duration * 60000);
+    const now = new Date().getTime();
+    const startTime = new Date(meeting.startTime).getTime();
+    const endTime = startTime + meeting.duration * 60000;
 
     if (now < startTime) return "upcoming";
     if (now >= startTime && now <= endTime) return "live";
@@ -1584,14 +1607,12 @@ const LearningInterface = () => {
                         <div className="grid gap-4">
                           {meetings.map((meeting) => {
                             const status = getMeetingStatus(meeting);
-                            const now = new Date();
-                            const startTime = new Date(meeting.startTime);
-                            const endTime = new Date(
-                              startTime.getTime() + meeting.duration * 60000,
-                            );
-                            const isLive = now >= startTime && now <= endTime;
-                            const isUpcoming = now < startTime;
-                            const isCompleted = now > endTime;
+                            const nowTimestamp = new Date().getTime();
+                            const startTimestamp = new Date(meeting.startTime).getTime();
+                            const endTimestamp = startTimestamp + meeting.duration * 60000;
+                            const isLive = nowTimestamp >= startTimestamp && nowTimestamp <= endTimestamp;
+                            const isUpcoming = nowTimestamp < startTimestamp;
+                            const isCompleted = nowTimestamp > endTimestamp;
 
                             return (
                               <div
@@ -1615,7 +1636,7 @@ const LearningInterface = () => {
                                     <Video className="h-6 w-6" />
                                   </div>
                                 </div>
-                                <div className="min-w-0 flex-1">
+                                <div className="min-w-0 flex-1 w-full">
                                   <div className="flex flex-wrap items-center gap-2">
                                     <h4 className="font-bold text-slate-900 group-hover:text-[#8B6ED7] transition-colors truncate max-w-[150px] sm:max-w-none">
                                       {meeting.topic}
@@ -1644,21 +1665,31 @@ const LearningInterface = () => {
                                         className="h-3.5 w-3.5"
                                         aria-hidden="true"
                                       />
-                                      {new Date(
-                                        meeting.startTime,
-                                      ).toLocaleString()}
+                                      {/* ✅ FORMATTED TO IST */}
+                                      {new Date(meeting.startTime).toLocaleString("en-IN", {
+                                        timeZone: "Asia/Kolkata",
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                      })}
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                       <Clock
                                         className="h-3.5 w-3.5"
                                         aria-hidden="true"
                                       />
-                                      {meeting.duration} min
+                                      {/* ✅ FORMATTED TO IST */}
+                                      {new Date(meeting.startTime).toLocaleTimeString("en-IN", {
+                                        timeZone: "Asia/Kolkata",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}{" "}
+                                      ({meeting.duration} min)
                                     </div>
                                   </div>
                                 </div>
 
-                                <div className="flex items-center gap-2 w-full sm:w-auto">
+                                <div className="flex items-center gap-2 w-full sm:w-auto mt-3 sm:mt-0">
                                   {/* INSTRUCTOR VIEW */}
                                   {user?.role === "instructor" && (
                                     <>
@@ -1747,9 +1778,11 @@ const LearningInterface = () => {
                                           Upcoming
                                           <span className="text-[10px] ml-1">
                                             (
+                                            {/* ✅ FORMATTED TO IST */}
                                             {new Date(
                                               meeting.startTime,
-                                            ).toLocaleTimeString([], {
+                                            ).toLocaleTimeString("en-IN", {
+                                              timeZone: "Asia/Kolkata",
                                               hour: "2-digit",
                                               minute: "2-digit",
                                             })}
@@ -1805,11 +1838,11 @@ const LearningInterface = () => {
                             className="flex items-center justify-between p-4 border border-slate-100 rounded-xl hover:border-[#D8BFD8] hover:bg-[#F4F0FA] transition-all group"
                             aria-label={`Download ${resource.title}`}
                           >
-                            <div className="flex items-center gap-3 min-w-0">
+                            <div className="flex items-center gap-3 min-w-0 w-full">
                               <div className="p-2.5 bg-[#E6E6FA] rounded-lg shrink-0">
                                 <FileText className="h-5 w-5 text-[#8B6ED7]" />
                               </div>
-                              <div className="min-w-0">
+                              <div className="min-w-0 flex-1">
                                 <p className="font-bold text-slate-900 text-sm truncate group-hover:text-[#8B6ED7] transition-colors">
                                   {resource.title}
                                 </p>
@@ -1819,7 +1852,7 @@ const LearningInterface = () => {
                               </div>
                             </div>
                             <Download
-                              className="h-4 w-4 sm:h-5 sm:w-5 text-slate-400 shrink-0 group-hover:text-[#8B6ED7] transition-colors"
+                              className="h-4 w-4 sm:h-5 sm:w-5 text-slate-400 shrink-0 group-hover:text-[#8B6ED7] transition-colors ml-4"
                               aria-hidden="true"
                             />
                           </a>
@@ -2043,7 +2076,7 @@ const LearningInterface = () => {
                                             height: "auto",
                                           }}
                                           exit={{ opacity: 0, height: 0 }}
-                                          className="mt-3 flex flex-col sm:flex-row gap-2 overflow-hidden"
+                                          className="mt-3 flex flex-col sm:flex-row gap-2 overflow-hidden w-full"
                                         >
                                           <textarea
                                             value={replyText}
@@ -2055,7 +2088,7 @@ const LearningInterface = () => {
                                             rows={1}
                                             aria-label="Reply text"
                                           />
-                                          <div className="flex justify-end shrink-0">
+                                          <div className="flex justify-end shrink-0 w-full sm:w-auto">
                                             <button
                                               onClick={() =>
                                                 handleReplyDiscussion(
@@ -2066,11 +2099,11 @@ const LearningInterface = () => {
                                                 !replyText.trim() ||
                                                 submittingReply
                                               }
-                                              className="px-4 py-1.5 bg-[#8B6ED7] text-white rounded-lg text-xs font-bold hover:bg-[#7354C4] disabled:opacity-50 transition-colors shadow-sm w-full sm:w-auto"
+                                              className="px-4 py-2 bg-[#8B6ED7] text-white rounded-lg text-xs font-bold hover:bg-[#7354C4] disabled:opacity-50 transition-colors shadow-sm w-full sm:w-auto"
                                               aria-label="Submit reply"
                                             >
                                               {submittingReply ? (
-                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                <Loader2 className="h-4 w-4 animate-spin mx-auto" />
                                               ) : (
                                                 "Reply"
                                               )}

@@ -1476,7 +1476,7 @@ const AdminDashboard = () => {
                       </span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Course Sales</span>
+                      <span>Course Sales(This Month)</span>
                       <span className="font-semibold">
                         {platformReports?.financialReports?.courseSales}
                       </span>

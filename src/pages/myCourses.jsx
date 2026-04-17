@@ -173,7 +173,7 @@ const MyCourses = () => {
 
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = `certificate-${courseId}.png`; 
+      link.download = `certificate-${courseId}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -358,10 +358,10 @@ const MyCourses = () => {
       role === "student"
         ? studentCourse
         : role === "instructor"
-        ? instructorCourse
-        : role === "admin"
-        ? adminCourse
-        : [];
+          ? instructorCourse
+          : role === "admin"
+            ? adminCourse
+            : [];
 
     if (searchTerm) {
       courses = courses?.filter(
@@ -484,11 +484,10 @@ const MyCourses = () => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className={`grid gap-4 md:gap-6 mb-8 ${
-            role === "admin"
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5"
-              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-          }`}
+          className={`grid gap-4 md:gap-6 mb-8 ${role === "admin"
+            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5"
+            : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+            }`}
         >
           {statsConfig[role]?.map((stat, index) => (
             <motion.div
@@ -543,11 +542,10 @@ const MyCourses = () => {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all whitespace-nowrap ${
-                      activeTab === tab
-                        ? "bg-white text-violet-700 shadow-sm"
-                        : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
-                    }`}
+                    className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all whitespace-nowrap ${activeTab === tab
+                      ? "bg-white text-violet-700 shadow-sm"
+                      : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                      }`}
                   >
                     {tab === "active" ? "In Progress" : tab}
                   </button>
@@ -558,21 +556,19 @@ const MyCourses = () => {
               <div className="hidden sm:flex bg-slate-50 p-1 rounded-xl border border-violet-50">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === "grid"
-                      ? "bg-white text-violet-600 shadow-sm"
-                      : "text-slate-400 hover:text-slate-700"
-                  }`}
+                  className={`p-2 rounded-lg transition-all ${viewMode === "grid"
+                    ? "bg-white text-violet-600 shadow-sm"
+                    : "text-slate-400 hover:text-slate-700"
+                    }`}
                 >
                   <LayoutGrid size={20} />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === "list"
-                      ? "bg-white text-violet-600 shadow-sm"
-                      : "text-slate-400 hover:text-slate-700"
-                  }`}
+                  className={`p-2 rounded-lg transition-all ${viewMode === "list"
+                    ? "bg-white text-violet-600 shadow-sm"
+                    : "text-slate-400 hover:text-slate-700"
+                    }`}
                 >
                   <List size={20} />
                 </button>
@@ -596,7 +592,7 @@ const MyCourses = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   whileHover={{ y: -4 }}
-                  className="group bg-white rounded-2xl border border-violet-100 overflow-hidden hover:shadow-md hover:border-violet-200 transition-all duration-300 flex flex-col"
+                  className="group bg-white rounded-2xl border border-violet-100 overflow-hidden hover:shadow-lg hover:border-violet-200 transition-all duration-300 flex flex-col"
                 >
                   {/* Course Image */}
                   <div className="relative h-48 overflow-hidden flex-shrink-0">
@@ -610,17 +606,16 @@ const MyCourses = () => {
                     {/* Status Badge */}
                     <div className="absolute top-4 left-4">
                       <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
-                          role === "student"
-                            ? course?.enrollment?.progress === 100
-                              ? "bg-emerald-500 text-white"
-                              : "bg-violet-600 text-white"
-                            : course?.status === "published"
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-sm ${role === "student"
+                          ? course?.enrollment?.progress === 100
+                            ? "bg-emerald-500 text-white"
+                            : "bg-violet-600 text-white"
+                          : course?.status === "published"
                             ? "bg-emerald-500 text-white"
                             : course?.status === "review"
-                            ? "bg-amber-500 text-white"
-                            : "bg-slate-500 text-white"
-                        }`}
+                              ? "bg-amber-500 text-white"
+                              : "bg-slate-500 text-white"
+                          }`}
                       >
                         {role === "student"
                           ? `${course?.enrollment?.progress || 0}%`
@@ -656,11 +651,10 @@ const MyCourses = () => {
                       <div className="mb-4">
                         <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              course?.enrollment?.progress === 100
-                                ? "bg-emerald-500"
-                                : "bg-gradient-to-r from-violet-500 to-fuchsia-500"
-                            }`}
+                            className={`h-full rounded-full transition-all duration-500 ${course?.enrollment?.progress === 100
+                              ? "bg-emerald-500"
+                              : "bg-gradient-to-r from-violet-500 to-fuchsia-500"
+                              }`}
                             style={{
                               width: `${course?.enrollment?.progress || 0}%`,
                             }}
@@ -671,15 +665,15 @@ const MyCourses = () => {
                             {course?.nextLesson
                               ? `Next: ${course.nextLesson.title}`
                               : course?.enrollment?.progress === 100
-                              ? "Completed"
-                              : "Start learning"}
+                                ? "Completed"
+                                : "Start learning"}
                           </span>
                         </div>
                       </div>
                     )}
 
-                    {/* Footer Actions */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-slate-100 gap-4 mt-auto">
+                    {/* Footer Actions - IMPROVED BUTTON UI */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-slate-100 gap-3 mt-auto">
                       <div className="flex items-center text-sm text-slate-500">
                         {role === "instructor" ? (
                           <>
@@ -694,104 +688,109 @@ const MyCourses = () => {
                       </div>
 
                       <div className="flex flex-wrap gap-2">
-                        {role === "student" &&
-                          course?.enrollment?.status === "completed" && (
-                            <button
-                              onClick={() =>
-                                handleDownloadCertificate(course?._id)
-                              }
-                              className="inline-flex flex-1 sm:flex-none justify-center items-center px-3 py-2 rounded-lg text-sm font-medium transition-all bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                            >
-                              <Award className="h-4 w-4 mr-1.5" />
-                              <span className="hidden sm:inline">Certificate</span>
-                            </button>
-                          )}
+                        {/* Student: Certificate Button */}
+                        {role === "student" && course?.enrollment?.status === "completed" && (
+                          <button
+                            onClick={() => handleDownloadCertificate(course?._id)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:scale-105 active:scale-95"
+                          >
+                            <Award className="h-3.5 w-3.5" />
+                            <span>Certificate</span>
+                          </button>
+                        )}
 
+                        {/* Student: Continue/Review Button */}
                         {role === "student" && (
                           <button
-                            onClick={() =>
-                              navigate(`/mycourses/learn/${course?._id}`)
-                            }
-                            className={`inline-flex flex-1 sm:flex-none justify-center items-center px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                              course?.enrollment?.progress === 100
-                                ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                                : "bg-violet-600 text-white hover:bg-violet-700 shadow-sm hover:shadow-md"
-                            }`}
+                            onClick={() => navigate(`/mycourses/learn/${course?._id}`)}
+                            className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm ${course?.enrollment?.progress === 100
+                              ? "bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-md hover:scale-105 active:scale-95"
+                              : "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-md hover:scale-105 active:scale-95"
+                              }`}
                           >
                             {course?.enrollment?.progress === 100 ? (
                               <>
-                                <CheckCircle size={16} className="mr-1.5" />{" "}
-                                Review
+                                <CheckCircle size={14} />
+                                <span>Review</span>
                               </>
                             ) : (
                               <>
-                                <PlayCircle size={16} className="mr-1.5" />{" "}
-                                Continue
+                                <PlayCircle size={14} />
+                                <span>Continue</span>
                               </>
                             )}
                           </button>
                         )}
 
+                        {/* Instructor: View Button */}
                         {role === "instructor" && (
                           <>
                             <button
-                              onClick={() =>
-                                navigate(`/mycourses/learn/${course?._id}`)
-                              }
-                              className="px-3 py-2 text-slate-500 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors text-sm font-medium"
+                              onClick={() => navigate(`/mycourses/learn/${course?._id}`)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 bg-slate-100 text-slate-700 hover:bg-violet-100 hover:text-violet-700 hover:scale-105 active:scale-95"
                             >
-                              View
+                              <Eye size={14} />
+                              <span>View</span>
                             </button>
+
+                            {/* Instructor: Edit Button */}
                             <button
-                              onClick={() =>
-                                navigate(`/mycourses/edit/${course?._id}`)
-                              }
-                              className="p-2 text-slate-500 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                              onClick={() => navigate(`/mycourses/edit/${course?._id}`)}
+                              className="inline-flex items-center gap-1.5 p-1.5 rounded-lg text-sm font-medium transition-all duration-200 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:scale-105 active:scale-95"
+                              title="Edit Course"
                             >
-                              <Edit3 size={18} />
+                              <Edit3 size={16} />
                             </button>
+
+                            {/* Instructor: Delete Button */}
                             <button
                               onClick={() => handleDeleteCourse(course?._id)}
-                              className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              className="inline-flex items-center gap-1.5 p-1.5 rounded-lg text-sm font-medium transition-all duration-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:scale-105 active:scale-95"
+                              title="Delete Course"
                             >
-                              <Trash2 size={18} />
+                              <Trash2 size={16} />
                             </button>
                           </>
                         )}
 
+                        {/* Admin: Approve/Reject Buttons */}
                         {role === "admin" && course.status === "review" && (
                           <>
                             <button
                               onClick={() => handleApproveCourse(course?._id)}
                               disabled={course?.status === "published"}
-                              className="p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 p-1.5 rounded-lg text-sm font-medium transition-all duration-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+                              title="Approve Course"
                             >
-                              <Check size={18} />
+                              <Check size={16} />
                             </button>
                             <button
                               onClick={() => handleRejectCourse(course?._id)}
                               disabled={course?.status === "rejected"}
-                              className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 p-1.5 rounded-lg text-sm font-medium transition-all duration-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+                              title="Reject Course"
                             >
-                              <X size={18} />
+                              <X size={16} />
                             </button>
                           </>
                         )}
+
+                        {/* Admin: View & Delete Buttons */}
                         {role === "admin" && (
                           <>
                             <button
-                              onClick={() =>
-                                navigate(`/mycourses/learn/${course?._id}`)
-                              }
-                              className="px-3 py-2 text-slate-500 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors text-sm font-medium"
+                              onClick={() => navigate(`/mycourses/learn/${course?._id}`)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 bg-slate-100 text-slate-700 hover:bg-violet-100 hover:text-violet-700 hover:scale-105 active:scale-95"
                             >
-                              View
+                              <Eye size={14} />
+                              <span>View</span>
                             </button>
                             <button
                               onClick={() => handleDeleteCourse(course?._id)}
-                              className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              className="inline-flex items-center gap-1.5 p-1.5 rounded-lg text-sm font-medium transition-all duration-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:scale-105 active:scale-95"
+                              title="Delete Course"
                             >
-                              <Trash2 size={18} />
+                              <Trash2 size={16} />
                             </button>
                           </>
                         )}
@@ -838,10 +837,10 @@ const MyCourses = () => {
               {searchTerm
                 ? "Try adjusting your search terms or filters"
                 : role === "student"
-                ? "Enroll in courses to get started with your learning journey"
-                : role === "instructor"
-                ? "Create your first course to begin teaching"
-                : "No courses available in the system"}
+                  ? "Enroll in courses to get started with your learning journey"
+                  : role === "instructor"
+                    ? "Create your first course to begin teaching"
+                    : "No courses available in the system"}
             </p>
 
             <RoleBasedView

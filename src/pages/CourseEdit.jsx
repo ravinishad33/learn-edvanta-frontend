@@ -18,6 +18,7 @@ import {
   FiClock,
   FiCheckCircle,
   FiArrowLeft,
+  FiVideo as FiVideoIcon,
 } from "react-icons/fi";
 import {
   FileText,
@@ -26,6 +27,11 @@ import {
   Settings,
   BookOpen,
   Layers,
+  Video,
+  Calendar,
+  Clock,
+  Trash2,
+  ExternalLink,
 } from "lucide-react";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary";
 
@@ -45,6 +51,13 @@ const CourseEdit = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [currentLessonPreview, setCurrentLessonPreview] = useState(null);
   const [originalCourse, setOriginalCourse] = useState(null);
+  const [meetings, setMeetings] = useState([]);
+  const [schedulingMeeting, setSchedulingMeeting] = useState(false);
+  const [newMeeting, setNewMeeting] = useState({
+    topic: "",
+    startTime: "",
+    duration: 60,
+  });
 
  const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -176,6 +189,11 @@ const CourseEdit = () => {
             setSections(formattedSections);
           }
 
+          // Set meetings
+          if (course.meetings) {
+            setMeetings(course.meetings);
+          }
+
           // toast.success("Course loaded successfully!");
         }
       } catch (error) {
@@ -266,8 +284,9 @@ const CourseEdit = () => {
     { number: 1, title: "Basic Info", icon: FileText },
     { number: 2, title: "Course Media", icon: Image },
     { number: 3, title: "Curriculum", icon: Layers },
-    { number: 4, title: "Settings", icon: Settings },
-    { number: 5, title: "Review", icon: Globe },
+    { number: 4, title: "Live Sessions", icon: Video },
+    { number: 5, title: "Settings", icon: Settings },
+    { number: 6, title: "Review", icon: Globe },
   ];
 
 
@@ -574,6 +593,51 @@ const CourseEdit = () => {
   };
 
 // navigation 
+  const handleScheduleMeeting = async (e) => {
+    e.preventDefault();
+    if (!newMeeting.topic || !newMeeting.startTime || !newMeeting.duration) {
+      toast.error("Please fill all meeting details");
+      return;
+    }
+
+    setSchedulingMeeting(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${apiUrl}/api/meeting/${courseId}/schedule`,
+        newMeeting,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.meeting) {
+        setMeetings([...meetings, response.data.meeting]);
+        setNewMeeting({ topic: "", startTime: "", duration: 60 });
+        toast.success("Meeting scheduled successfully!");
+      }
+    } catch (error) {
+      console.error("Scale meeting error:", error);
+      toast.error(error.response?.data?.message || "Failed to schedule meeting");
+    } finally {
+      setSchedulingMeeting(false);
+    }
+  };
+
+  const handleDeleteMeeting = async (meetingId) => {
+    if (!window.confirm("Are you sure you want to delete this meeting?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${apiUrl}/api/meeting/${courseId}/${meetingId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setMeetings(meetings.filter((m) => m._id !== meetingId));
+      toast.success("Meeting deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete meeting");
+    }
+  };
+
   const nextStep = async () => {
     let isValid = true;
 
@@ -614,7 +678,7 @@ const CourseEdit = () => {
         break;
     }
 
-    if (isValid && currentStep < 5) {
+    if (isValid && currentStep < 6) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -785,13 +849,13 @@ const CourseEdit = () => {
           {/* Mobile Progress Bar */}
           <div className="mt-4 md:hidden">
             <div className="flex justify-between text-sm text-gray-600">
-              <span>Step {currentStep} of 5</span>
-              <span>{Math.round((currentStep / 5) * 100)}% Complete</span>
+              <span>Step {currentStep} of 6</span>
+              <span>{Math.round((currentStep / 6) * 100)}% Complete</span>
             </div>
             <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(currentStep / 5) * 100}%` }}
+                style={{ width: `${(currentStep / 6) * 100}%` }}
               />
             </div>
           </div>
@@ -1459,8 +1523,161 @@ const CourseEdit = () => {
                 </div>
               )}
 
-              {/* Step 4: Settings */}
+              {/* Step 4: Live Sessions */}
               {currentStep === 4 && (
+                <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      Live Sessions (Zoom)
+                    </h2>
+                    <Video className="w-8 h-8 text-blue-600" />
+                  </div>
+
+                  {/* Schedule Form */}
+                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-blue-600" />
+                      Schedule New Session
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="md:col-span-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Session Topic
+                        </label>
+                        <input
+                          type="text"
+                          value={newMeeting.topic}
+                          onChange={(e) =>
+                            setNewMeeting({ ...newMeeting, topic: e.target.value })
+                          }
+                          placeholder="e.g. Weekly Q&A Session"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Start Date & Time
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={newMeeting.startTime}
+                          onChange={(e) =>
+                            setNewMeeting({
+                              ...newMeeting,
+                              startTime: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Duration (min)
+                        </label>
+                        <select
+                          value={newMeeting.duration}
+                          onChange={(e) =>
+                            setNewMeeting({
+                              ...newMeeting,
+                              duration: parseInt(e.target.value),
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="30">30 min</option>
+                          <option value="45">45 min</option>
+                          <option value="60">1 hour</option>
+                          <option value="90">1.5 hours</option>
+                          <option value="120">2 hours</option>
+                        </select>
+                      </div>
+                      <div className="flex items-end">
+                        <button
+                          type="button"
+                          onClick={handleScheduleMeeting}
+                          disabled={schedulingMeeting}
+                          className="w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                          {schedulingMeeting ? (
+                            <FiLoader className="animate-spin" />
+                          ) : (
+                            <>
+                              <FiPlus className="w-5 h-5" /> Schedule
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Meetings List */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-blue-600" />
+                      Upcoming Sessions
+                    </h3>
+
+                    {meetings.length === 0 ? (
+                      <div className="text-center py-8 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl">
+                        <p className="text-gray-500">No sessions scheduled yet.</p>
+                      </div>
+                    ) : (
+                      <div className="grid gap-4">
+                        {meetings.map((meeting) => (
+                          <div
+                            key={meeting._id || meeting.zoomMeetingId}
+                            className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="p-3 bg-blue-100 rounded-lg text-blue-600">
+                                <Video className="w-6 h-6" />
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-gray-900">
+                                  {meeting.topic}
+                                </h4>
+                                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-gray-500">
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-4 h-4" />
+                                    {new Date(meeting.startTime).toLocaleString()}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-4 h-4" />
+                                    {meeting.duration} min
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {meeting.startUrl && (
+                                <a
+                                  href={meeting.startUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex-1 md:flex-none px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                                >
+                                  Start Meeting <ExternalLink className="w-4 h-4" />
+                                </a>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteMeeting(meeting._id)}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              >
+                                <Trash2 className="w-5 h-5" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 5: Settings */}
+              {currentStep === 5 && (
                 <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
                   <h2 className="text-2xl font-bold text-gray-800">
                     Course Settings
@@ -1591,8 +1808,8 @@ const CourseEdit = () => {
                 </div>
               )}
 
-              {/* Step 5: Review */}
-              {currentStep === 5 && (
+              {/* Step 6: Review */}
+              {currentStep === 6 && (
                 <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
                   <h2 className="text-2xl font-bold text-gray-800">
                     Review & Update
@@ -1768,7 +1985,7 @@ const CourseEdit = () => {
                   <FiChevronLeft /> Previous
                 </button>
 
-                {currentStep < 5 ? (
+                {currentStep < 6 ? (
                   <button
                     type="button"
                     onClick={nextStep}
@@ -1867,13 +2084,13 @@ const CourseEdit = () => {
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-gray-600">Completion</span>
                     <span className="font-medium">
-                      {Math.round((currentStep / 5) * 100)}%
+                      {Math.round((currentStep / 6) * 100)}%
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(currentStep / 5) * 100}%` }}
+                      style={{ width: `${(currentStep / 6) * 100}%` }}
                     />
                   </div>
                 </div>
@@ -1883,8 +2100,9 @@ const CourseEdit = () => {
                     { label: "Basic Info", step: 1 },
                     { label: "Media", step: 2 },
                     { label: "Curriculum", step: 3 },
-                    { label: "Settings", step: 4 },
-                    { label: "Review", step: 5 },
+                    { label: "Live Sessions", step: 4 },
+                    { label: "Settings", step: 5 },
+                    { label: "Review", step: 6 },
                   ].map((item, index) => (
                     <div key={index} className="flex justify-between items-center">
                       <span
@@ -1977,9 +2195,9 @@ const CourseEdit = () => {
               <FiChevronLeft /> Back
             </button>
 
-            <div className="text-sm text-gray-600">Step {currentStep} of 5</div>
+            <div className="text-sm text-gray-600">Step {currentStep} of 6</div>
 
-            {currentStep < 5 ? (
+            {currentStep < 6 ? (
               <button
                 type="button"
                 onClick={nextStep}

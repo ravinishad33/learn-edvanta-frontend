@@ -21,6 +21,7 @@ import {
   InformationCircleIcon,
   ShieldCheckIcon,
   XMarkIcon,
+  VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import { CrossIcon, XCircleIcon } from "lucide-react";
@@ -398,9 +399,23 @@ const CourseDetail = () => {
               </div>
 
               <div className="flex items-center">
-                <div className="h-12 w-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
-                  {course.instructor?.name?.charAt(0) || "I"}
-                </div>
+              <div className="h-12 w-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3 overflow-hidden">
+ 
+ 
+ 
+ 
+  {
+    course?.instructor?.avatar?.url ? (
+      <img
+        src={course.instructor.avatar.url}
+        alt="Instructor"
+        className="h-full w-full object-cover"
+      />
+    ) : (
+      course?.instructor?.name?.charAt(0) || "I"
+    )
+  }
+</div>
                 <div>
                   <p className="font-semibold">
                     Created by {course.instructor?.name}
@@ -544,6 +559,7 @@ const CourseDetail = () => {
                     icon: InformationCircleIcon,
                   },
                   { id: "curriculum", label: "Curriculum", icon: BookOpenIcon },
+                  { id: "live", label: "Live Sessions", icon: VideoCameraIcon },
                   {
                     id: "instructor",
                     label: "Instructor",
@@ -720,6 +736,108 @@ const CourseDetail = () => {
                   </motion.div>
                 )}
 
+                {/* Live Sessions Tab */}
+                {activeTab === "live" && (
+                  <motion.div
+                    key="live"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="space-y-6"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-2xl font-bold text-gray-900">
+                        Upcoming Live Sessions
+                      </h3>
+                      <span className="px-4 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-bold uppercase tracking-wider">
+                        {course?.meetings?.length || 0} Sessions
+                      </span>
+                    </div>
+
+                    {course?.meetings?.length > 0 ? (
+                      <div className="grid gap-4">
+                        {course.meetings.map((meeting) => (
+                          <div
+                            key={meeting._id}
+                            className="bg-white border border-gray-100 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm hover:shadow-md transition-all"
+                          >
+                            <div className="flex items-start gap-4 w-full">
+                              <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
+                                <VideoCameraIcon className="h-6 w-6" />
+                              </div>
+                              <div className="min-w-0">
+                                <h4 className="font-bold text-gray-900 text-lg">
+                                  {meeting.topic}
+                                </h4>
+                                <div className="flex flex-wrap items-center gap-6 mt-2 text-sm text-gray-500 font-medium">
+                                  <div className="flex items-center gap-2">
+                                    <ClockIcon className="h-4 w-4" />
+                                    {new Date(meeting.startTime).toLocaleString()}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <PlayCircleIcon className="h-4 w-4" />
+                                    {meeting.duration} min
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {reduxUser?._id === course?.instructor?._id ||
+                            course?.isEnrolled ? (
+                              <button
+                                onClick={() =>
+                                  navigate(`/mycourses/learn/${id}`)
+                                }
+                                className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
+                              >
+                                {reduxUser?._id === course?.instructor?._id ? 'Manage' : 'Join'} in Learning Interface
+                              </button>
+                            ) : (
+                              <div className="w-full sm:w-auto px-4 py-2 bg-gray-100 text-gray-600 text-xs font-bold rounded-lg text-center">
+                                Enroll to Join
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-100">
+                        <VideoCameraIcon className="h-16 w-16 text-gray-200 mx-auto mb-4" />
+                        <h4 className="text-gray-900 font-bold text-xl mb-2">
+                          No Live Sessions Scheduled
+                        </h4>
+                        <p className="text-gray-500 max-w-sm mx-auto">
+                          There are currently no live classes scheduled for this
+                          course.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Quick Link for Instructor */}
+                    {reduxUser?._id === course?.instructor?._id && (
+                      <div className="mt-8 p-6 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl text-white shadow-xl">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                          <div>
+                            <h4 className="text-xl font-bold mb-2">
+                              Instructor Quick Manage
+                            </h4>
+                            <p className="text-blue-100">
+                              Schedule, edit, or start your live Zoom sessions
+                              directly from the learning interface.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => navigate(`/mycourses/learn/${id}`)}
+                            className="px-8 py-3 bg-white text-blue-700 font-bold rounded-xl hover:bg-blue-50 transition-all shadow-lg whitespace-nowrap"
+                          >
+                            Manage Sessions
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
                 {/* Instructor Tab */}
                 {activeTab === "instructor" && (
                   <motion.div
@@ -828,7 +946,7 @@ const CourseDetail = () => {
                       <h4 className="text-xl font-bold text-gray-900">
                         Reviews ({course.reviews?.length || 0})
                       </h4>
-                      {course.reviews?.length > 0 ? (
+                      {course?.reviews?.length > 0 ? (
                         course?.reviews?.map((review, idx) => (
                           <div
                             key={review?._id || idx}
@@ -837,7 +955,17 @@ const CourseDetail = () => {
                             <div className="flex justify-between items-start mb-4">
                               <div className="flex items-center">
                                 <div className="h-12 w-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
-                                  {review.user?.name?.charAt(0) || "U"}
+                              
+                            {
+  review.student?.avatar?.url ? (
+    <img 
+      src={review.student?.avatar?.url}
+      // alt="User"
+    />
+  ) : (
+    review.student?.name?.charAt(0)
+  )
+}
                                 </div>
                                 <div>
                                   <div className="font-bold text-gray-900">

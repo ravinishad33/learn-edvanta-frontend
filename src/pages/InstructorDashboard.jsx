@@ -20,39 +20,49 @@ const InstructorDashboard = () => {
   const [recentStudents, setRecentStudents] = useState([]);
   const navigate = useNavigate();
 
- const apiUrl = import.meta.env.VITE_API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL;
+
+const getColor = (value) => {
+  if (value > 0) return "green";
+  if (value < 0) return "red";
+  return "gray";
+};
 
 
-  const stats = [
-    {
-      label: "Total Courses",
-      value: instructorStats?.totalCourses,
-      change: instructorStats?.courseGrowth,
-      icon: ChartBarIcon,
-      color: "blue",
-    },
-    {
-      label: "Total Students",
-      value: instructorStats?.totalStudents,
-      change: instructorStats?.studentGrowth,
-      icon: UserGroupIcon,
-      color: "green",
-    },
-    {
-      label: "Total Revenue",
-      value: "₹" + instructorStats?.totalRevenue,
-      change: instructorStats?.revenueGrowthPercent,
-      icon: CurrencyRupeeIcon,
-      color: "purple",
-    },
-    {
-      label: "Avg Rating",
-      value: instructorStats?.avgRating,
-      change: instructorStats?.ratingGrowth,
-      icon: StarIcon,
-      color: "yellow",
-    },
-  ];
+
+
+
+
+const stats = [
+  {
+    label: "Total Courses",
+    value: instructorStats?.totalCourses,
+    change: instructorStats?.courseGrowth,
+    icon: ChartBarIcon,
+    color: getColor(instructorStats?.courseGrowth),
+  },
+  {
+    label: "Total Students",
+    value: instructorStats?.totalStudents,
+    change: instructorStats?.studentGrowth,
+    icon: UserGroupIcon,
+    color: getColor(instructorStats?.studentGrowth),
+  },
+  {
+    label: "Total Revenue",
+    value: "₹" + instructorStats?.totalRevenue,
+    change: instructorStats?.revenueGrowthPercent +'%',
+    icon: CurrencyRupeeIcon,
+    color: getColor(instructorStats?.revenueGrowthPercent),
+  },
+  {
+    label: "Avg Rating",
+    value: instructorStats?.avgRating,
+    change: instructorStats?.ratingGrowth,
+    icon: StarIcon,
+    color: getColor(instructorStats?.ratingGrowth),
+  },
+];
 
   const getRecentStudents = async () => {
     const token = localStorage.getItem("token");
@@ -78,9 +88,6 @@ const InstructorDashboard = () => {
     const getStats = async () => {
       try {
         const token = localStorage.getItem("token");
-        // if (role !== "instructor") {
-        //   return;
-        // }
         const statsRes = await axios.get(
           `${apiUrl}/api/instructor/stats`,
           {
@@ -181,13 +188,14 @@ const InstructorDashboard = () => {
               transition={{ delay: index * 0.1 }}
               className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300"
             >
+          
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-2">
+                  <p className={`text-2xl font-bold text-${stat.color}-900 mt-2`}>
                     {stat.value}
                   </p>
-                  <p className="text-sm text-green-600 mt-1">
+            <p className={`text-sm text-${stat.color}-600 mt-1`}>
                     {stat.change} from last month
                   </p>
                 </div>
@@ -238,20 +246,27 @@ const InstructorDashboard = () => {
                         </span>
                         <span className="text-sm text-gray-600">
                           <StarIcon className="inline h-4 w-4 mr-1" />
-                          {course?.avgRating}
+                       {course?.avgRating?.toFixed(1)}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          course?.visibility === "public"
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${course?.visibility === "public"
                             ? "bg-green-100 text-green-800"
                             : "bg-yellow-100 text-yellow-800"
-                        }`}
+                          }`}
                       >
                         {course?.visibility}
                       </span>
+                      <button
+                        onClick={() => {
+                          navigate(`/mycourses/learn/${course?._id}`);
+                        }}
+                        className="px-4 py-2 text-green-600 hover:text-green-800 font-medium"
+                      >
+                        View
+                      </button>
                       <button
                         onClick={() => {
                           navigate(`/mycourses/edit/${course?._id}`);

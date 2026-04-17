@@ -289,11 +289,22 @@ const LearningInterface = () => {
   }, []);
 
   const formatDate = useCallback((dateString) => {
-    if (!dateString) return "";
-    const d = new Date(dateString);
-    const pad = (n) => n.toString().padStart(2, "0");
-    return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear().toString().slice(-2)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }, []);
+  if (!dateString) return "";
+
+  const d = new Date(dateString);
+
+  const options = {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  };
+
+  return new Intl.DateTimeFormat("en-IN", options).format(d);
+}, []);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
